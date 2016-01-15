@@ -58,8 +58,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = __webpack_require__(1);
 	module.exports.Editors = __webpack_require__(69);
-	module.exports.Formatters = __webpack_require__(73);
-	module.exports.Toolbar = __webpack_require__(75);
+	module.exports.Formatters = __webpack_require__(71);
+	module.exports.Toolbar = __webpack_require__(73);
 	module.exports.Row = __webpack_require__(44);
 
 /***/ },
@@ -386,7 +386,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  onCellCommit: function onCellCommit(commit) {
 	    this.setInactive();
 	    if (commit.key === 'Tab') {
-	      this.moveSelectedCell(null, 0, -1);
+	      this.moveSelectedCell(null, 0, 1);
 	    }
 
 	    this.props.onRowUpdated(commit);
@@ -412,12 +412,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    return cols;
 	  },
-
-	  // getSelectRowCell(props) {
-	  //   let Renderer = props.rowSelectRenderer || <CheckboxEditor/>;
-	  //
-	  //   if (React.isValidElement(Renderer))
-	  // },
 
 	  handleCheckboxChange: function handleCheckboxChange(e) {
 	    var allRowsSelected;
@@ -506,7 +500,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    var cellKey = this.getColumn(this.state.selected.idx).key;
 	    if (this.props.onCellCopyPaste) {
-	      this.props.onCellCopyPaste({ cellKey: cellKey, rowIdx: selected.rowIdx, value: this.state.textToCopy, fromRow: this.state.copied.rowIdx, toRow: selected.rowIdx });
+	      this.props.onCellCopyPaste({
+	        cellKey: cellKey,
+	        rowIdx: selected.rowIdx,
+	        value: this.state.textToCopy,
+	        fromRow: this.state.copied.rowIdx,
+	        toRow: selected.rowIdx
+	      });
 	    }
 	    this.setState({ copied: null });
 	  },
@@ -1313,6 +1313,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    headerRows: PropTypes.oneOfType([PropTypes.array, PropTypes.func]),
 	    rowHeight: PropTypes.number,
 	    rowRenderer: PropTypes.func,
+	    emptyRowsView: PropTypes.func,
 	    expandedRows: PropTypes.oneOfType([PropTypes.array, PropTypes.func]),
 	    selectedRows: PropTypes.oneOfType([PropTypes.array, PropTypes.func]),
 	    rowsCount: PropTypes.number,
@@ -1339,6 +1340,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  render: function render() {
 	    var headerRows = this.props.headerRows || [{ ref: 'row' }];
+	    var EmptyRowsView = this.props.emptyRowsView;
+
 	    return React.createElement(
 	      'div',
 	      _extends({}, this.props, { style: this.getStyle(), className: 'react-grid-Grid' }),
@@ -1353,9 +1356,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	        sortDirection: this.props.sortDirection,
 	        onSort: this.props.onSort
 	      }),
-	      React.createElement(
+	      this.props.rowsCount >= 1 || this.props.rowsCount === 0 && !this.props.emptyRowsView ? React.createElement(
 	        'div',
-	        { ref: 'viewPortContainer', onKeyDown: this.props.onViewportKeydown, onDoubleClick: this.props.onViewportDoubleClick, onDragStart: this.props.onViewportDragStart, onDragEnd: this.props.onViewportDragEnd },
+	        {
+	          ref: 'viewPortContainer',
+	          onKeyDown: this.props.onViewportKeydown,
+	          onDoubleClick: this.props.onViewportDoubleClick,
+	          onDragStart: this.props.onViewportDragStart,
+	          onDragEnd: this.props.onViewportDragEnd
+	        },
 	        React.createElement(Viewport, {
 	          ref: 'viewport',
 	          width: this.props.columnMetrics.width,
@@ -1373,6 +1382,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	          rowOffsetHeight: this.props.rowOffsetHeight || this.props.rowHeight * headerRows.length,
 	          minHeight: this.props.minHeight
 	        })
+	      ) : React.createElement(
+	        'div',
+	        { ref: 'emptyView', className: 'react-grid-Empty' },
+	        React.createElement(EmptyRowsView, null)
 	      )
 	    );
 	  },
@@ -2210,8 +2223,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var React = __webpack_require__(18);
 
 	var ExcelColumnShape = {
-	  name: React.PropTypes.string.isRequired,
-	  key: React.PropTypes.string.isRequired,
+	  name: React.PropTypes.string,
+	  key: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]).isRequired,
 	  width: React.PropTypes.number.isRequired
 	};
 
@@ -2485,6 +2498,31 @@ return /******/ (function(modules) { // webpackBootstrap
 	    onScroll: PropTypes.func,
 	    minHeight: PropTypes.number
 	  },
+
+	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	    var _this = this;
+
+	    var cellMetaData = nextProps.cellMetaData;
+
+	    if (this.selectedCellChanged(cellMetaData)) {
+	      (function () {
+	        var _cellMetaData$selected = cellMetaData.selected;
+	        var rowIdx = _cellMetaData$selected.rowIdx;
+	        var idx = _cellMetaData$selected.idx;
+
+	        var _scrollToCell = _this.scrollToCell([idx, rowIdx], nextProps);
+
+	        var scrollTop = _scrollToCell.scrollTop;
+	        var scrollLeft = _scrollToCell.scrollLeft;
+
+	        cancelAnimationFrame(_this._raf);
+	        _this._raf = requestAnimationFrame(function () {
+	          if (_this.isMounted()) _this.refs.canvas.setScroll(scrollTop, scrollLeft);
+	        });
+	      })();
+	    }
+	  },
+
 	  render: function render() {
 	    var style = {
 	      padding: 0,
@@ -2537,6 +2575,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  setScrollLeft: function setScrollLeft(scrollLeft) {
 	    this.refs.canvas.setScrollLeft(scrollLeft);
+	  },
+
+	  selectedCellChanged: function selectedCellChanged(cellMetaData) {
+	    var oldMeta = this.props.cellMetaData;
+	    return oldMeta.selected.rowIdx !== cellMetaData.selected.rowIdx || oldMeta.selected.idx !== cellMetaData.selected.idx;
 	  }
 	});
 
@@ -2771,7 +2814,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return { scrollTop: scrollTop, scrollLeft: scrollLeft };
 	  },
 
+	  setScroll: function setScroll(scrollTop, scrollLeft) {
+	    var current = this.getScroll();
+	    scrollTop = scrollTop == null ? current.scrollTop : scrollTop;
+	    scrollLeft = scrollLeft == null ? current.scrollLeft : scrollLeft;
+
+	    var node = ReactDOM.findDOMNode(this);
+
+	    if (scrollTop !== current.scrollTop) node.scrollTop = scrollTop;
+
+	    if (scrollLeft !== current.scrollLeft) {
+	      node.scrollLeft = scrollLeft;
+	    }
+	  },
+
 	  onScroll: function onScroll(e) {
+	    if (e.target !== ReactDOM.findDOMNode(this)) return;
 	    this.appendScrollShim();
 	    var _e$target = e.target;
 	    var scrollTop = _e$target.scrollTop;
@@ -2876,7 +2934,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  mixins: [ColumnUtilsMixin],
 
 	  render: function render() {
-	    var className = joinClasses('react-grid-Row', 'react-grid-Row--' + (this.props.idx % 2 === 0 ? 'even' : 'odd'));
+	    var className = joinClasses(this.props.className, 'react-grid-Row', 'react-grid-Row--' + (this.props.idx % 2 === 0 ? 'even' : 'odd'));
 
 	    var style = {
 	      height: this.getRowHeight(this.props),
@@ -2906,7 +2964,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: column.key + '-' + i,
 	        idx: i,
 	        rowIdx: _this.props.idx,
-	        value: _this.getCellValue(column.key || i),
 	        column: column,
 	        height: _this.getRowHeight(),
 	        formatter: column.formatter,
@@ -2934,18 +2991,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    }
 	    return this.props.height;
-	  },
-
-	  getCellValue: function getCellValue(key) {
-	    var val;
-	    if (key === 'select-row') {
-	      return this.props.isSelected;
-	    } else if (typeof this.props.row.get === 'function') {
-	      val = this.props.row.get(key);
-	    } else {
-	      val = this.props.row[key];
-	    }
-	    return val;
 	  },
 
 	  renderCell: function renderCell(props) {
@@ -3048,7 +3093,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    tabIndex: React.PropTypes.number,
 	    ref: React.PropTypes.string,
 	    column: React.PropTypes.shape(ExcelColumn).isRequired,
-	    value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number, React.PropTypes.object, React.PropTypes.bool]).isRequired,
 	    isExpanded: React.PropTypes.bool,
 	    cellMetaData: React.PropTypes.shape(CellMetaDataShape).isRequired,
 	    handleDragStart: React.PropTypes.func,
@@ -3065,7 +3109,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 
 	  getInitialState: function getInitialState() {
-	    return { isRowChanging: false, isCellValueChanging: false };
+	    return {
+	      isRowChanging: false,
+	      isCellValueChanging: false
+	    };
 	  },
 
 	  componentDidMount: function componentDidMount() {
@@ -3073,8 +3120,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 
 	  componentDidUpdate: function componentDidUpdate() {
-	    this.checkFocus();
 	    var dragged = this.props.cellMetaData.dragged;
+
+	    this.checkFocus();
+
 	    if (dragged && dragged.complete === true) {
 	      this.props.cellMetaData.handleTerminateDrag();
 	    }
@@ -3084,7 +3133,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-	    this.setState({ isRowChanging: this.props.rowData !== nextProps.rowData, isCellValueChanging: this.props.value !== nextProps.value });
+	    this.setState({
+	      isRowChanging: this.props.rowData !== nextProps.rowData,
+	      isCellValueChanging: this.props.value !== nextProps.value
+	    });
 	  },
 
 	  shouldComponentUpdate: function shouldComponentUpdate(nextProps) {
@@ -3103,15 +3155,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  render: function render() {
 	    var style = this.getStyle();
-
 	    var className = this.getCellClass();
-
-	    var cellContent = this.renderCellContent({
-	      value: this.props.value,
-	      column: this.props.column,
-	      rowIdx: this.props.rowIdx,
-	      isExpanded: this.props.isExpanded
-	    });
 
 	    return React.createElement(
 	      'div',
@@ -3121,28 +3165,47 @@ return /******/ (function(modules) { // webpackBootstrap
 	        onClick: this.onCellClick,
 	        onDoubleClick: this.onCellDoubleClick
 	      }),
-	      cellContent,
+	      this.renderCellContent(),
+	      this.props.children,
 	      React.createElement('div', { className: 'drag-handle', draggable: 'true' })
 	    );
 	  },
 
-	  renderCellContent: function renderCellContent(props) {
+	  renderCellContent: function renderCellContent() {
+	    var _props = this.props;
+	    var cellMetaData = _props.cellMetaData;
+	    var column = _props.column;
+	    var idx = _props.idx;
+	    var rowIdx = _props.rowIdx;
+	    var rowData = _props.rowData;
+	    var height = _props.height;
+	    var isExpanded = _props.isExpanded;
+	    var formatter = column.formatter;
 	    var CellContent;
-	    var Formatter = this.getFormatter();
-	    if (React.isValidElement(Formatter)) {
-	      props.dependentValues = this.getFormatterDependencies();
-	      CellContent = React.cloneElement(Formatter, props);
-	    } else if (isFunction(Formatter)) {
-	      CellContent = React.createElement(Formatter, { value: this.props.value, dependentValues: this.getFormatterDependencies() });
+
+	    var props = {
+	      cellMetaData: cellMetaData, column: column, idx: idx, rowIdx: rowIdx,
+	      rowData: rowData, height: height, isExpanded: isExpanded,
+	      value: this.getValue()
+	    };
+
+	    if (this.isActive()) {
+	      CellContent = React.createElement(EditorContainer, props);
+	    } else if (React.isValidElement(formatter)) {
+	      CellContent = React.cloneElement(formatter, props);
+	    } else if (isFunction(formatter)) {
+	      CellContent = React.createElement(formatter, props);
 	    } else {
-	      CellContent = React.createElement(SimpleCellFormatter, { value: this.props.value });
+	      CellContent = React.createElement(SimpleCellFormatter, props);
 	    }
+
 	    return React.createElement(
 	      'div',
-	      { ref: 'cell',
-	        className: 'react-grid-Cell__value' },
+	      {
+	        ref: 'cell',
+	        className: 'react-grid-Cell__value'
+	      },
 	      CellContent,
-	      ' ',
 	      this.props.cellControls
 	    );
 	  },
@@ -3186,24 +3249,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  },
 
-	  getFormatter: function getFormatter() {
-	    var col = this.props.column;
-	    if (this.isActive()) {
-	      return React.createElement(EditorContainer, { rowData: this.getRowData(), rowIdx: this.props.rowIdx, idx: this.props.idx, cellMetaData: this.props.cellMetaData, column: col, height: this.props.height });
-	    } else {
-	      return this.props.column.formatter;
-	    }
-	  },
-
 	  getRowData: function getRowData() {
 	    return this.props.rowData.toJSON ? this.props.rowData.toJSON() : this.props.rowData;
-	  },
-
-	  getFormatterDependencies: function getFormatterDependencies() {
-	    //convention based method to get corresponding Id or Name of any Name or Id property
-	    if (typeof this.props.column.getRowMetaData === 'function') {
-	      return this.props.column.getRowMetaData(this.getRowData(), this.props.column);
-	    }
 	  },
 
 	  onCellClick: function onCellClick() {
@@ -3299,12 +3346,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 
 	  isCopyCellChanging: function isCopyCellChanging(nextProps) {
-	    var isChanging;
 	    var copied = this.props.cellMetaData.copied;
 	    var nextCopied = nextProps.cellMetaData.copied;
+
 	    if (copied) {
-	      isChanging = nextCopied && this.props.idx === nextCopied.idx || copied && this.props.idx === copied.idx;
-	      return isChanging;
+	      return nextCopied && this.props.idx === nextCopied.idx || copied && this.props.idx === copied.idx;
 	    } else {
 	      return false;
 	    }
@@ -3318,16 +3364,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	  isDraggedOverDownwards: function isDraggedOverDownwards() {
 	    var dragged = this.props.cellMetaData.dragged;
 	    return !this.isSelected() && this.isDraggedOver() && this.props.rowIdx > dragged.rowIdx;
-	  }
+	  },
 
+	  getValue: function getValue() {
+	    var props = arguments.length <= 0 || arguments[0] === undefined ? this.props : arguments[0];
+	    var key = props.column.key;
+	    var row = props.rowData;
+
+	    if (key === 'select-row') return props.isRowSelected;else if (isFunction(row.get)) return row.get(key);else return row[key];
+	  }
 	});
 
 	var SimpleCellFormatter = React.createClass({
 	  displayName: 'SimpleCellFormatter',
-
-	  propTypes: {
-	    value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number, React.PropTypes.object, React.PropTypes.bool]).isRequired
-	  },
 
 	  render: function render() {
 	    // objects like dates will throw when specified as children
@@ -3338,10 +3387,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	      '' + this.props.value
 	    );
 	  },
+
 	  shouldComponentUpdate: function shouldComponentUpdate(nextProps) {
 	    return nextProps.value !== this.props.value;
 	  }
-
 	});
 
 	module.exports = Cell;
@@ -3375,7 +3424,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  propTypes: {
 	    rowData: React.PropTypes.object.isRequired,
-	    value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number, React.PropTypes.object, React.PropTypes.bool]).isRequired,
 	    cellMetaData: React.PropTypes.shape({
 	      selected: React.PropTypes.object.isRequired,
 	      copied: React.PropTypes.object,
@@ -3394,52 +3442,29 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 
 	  componentDidMount: function componentDidMount() {
-	    var inputNode = this.getInputNode();
-	    if (inputNode !== undefined) {
-	      checkAndCallOnEditor(this, 'focus', this.props.cellMetaData);
-	      if (!this.getEditor().disableContainerStyles) {
-	        inputNode.className += ' editor-main';
-	        inputNode.style.height = this.props.height - 1 + 'px';
-	      }
-	    }
+	    checkAndCallOnEditor(this, 'editorWillMount', this.props.cellMetaData);
 	  },
 
 	  createEditor: function createEditor() {
 	    var _this = this;
 
-	    var editorRef = function editorRef(c) {
-	      return _this.editor = c;
-	    };
+	    var customEditor = this.props.column.editor;
 	    var editorProps = {
-	      ref: editorRef,
+	      ref: function ref(c) {
+	        return _this.editor = c;
+	      },
 	      column: this.props.column,
 	      value: this.getInitialValue(),
 	      onCommit: this.commit,
-	      rowMetaData: this.getRowMetaData(),
-	      height: this.props.height,
-	      onBlur: this.commit,
-	      onOverrideKeyDown: this.onKeyDown
+	      rowData: this.props.rowData,
+	      height: this.props.height
 	    };
-	    var customEditor = this.props.column.editor;
-	    if (customEditor && React.isValidElement(customEditor)) {
-	      //return custom column editor or SimpleEditor if none specified
-	      return React.cloneElement(customEditor, editorProps);
-	    } else {
-	      return React.createElement(SimpleTextEditor, {
-	        ref: editorRef,
-	        column: this.props.column,
-	        value: this.getInitialValue(),
-	        onBlur: this.commit,
-	        rowMetaData: this.getRowMetaData()
-	      });
-	    }
-	  },
 
-	  getRowMetaData: function getRowMetaData() {
-	    //convention based method to get corresponding Id or Name of any Name or Id property
-	    if (typeof this.props.column.getRowMetaData === 'function') {
-	      return this.props.column.getRowMetaData(this.props.rowData, this.props.column);
+	    if (customEditor) {
+	      if (React.isValidElement(customEditor)) return React.cloneElement(customEditor, editorProps);else if (typeof customEditor === 'function') return customEditor(editorProps);
 	    }
+
+	    return React.createElement(SimpleTextEditor, editorProps);
 	  },
 
 	  onPressEnter: function onPressEnter() {
@@ -3514,8 +3539,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 
 	  commit: function commit(args) {
-	    var opts = args || {};
-	    var updated = this.getEditor().getValue();
+	    var opts = args || {},
+	        editor = this.getEditor(),
+	        updated;
+
+	    if (editor.getValue) updated = editor.getValue();
+
 	    if (this.isNewValueValid(updated)) {
 	      var cellKey = this.props.column.key;
 	      this.props.cellMetaData.onCommit({
@@ -3539,7 +3568,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 
 	  getInputNode: function getInputNode() {
-	    return this.getEditor().getInputNode();
+	    return this.getEditor().getInputNode && this.getEditor().getInputNode();
 	  },
 
 	  getInitialValue: function getInitialValue() {
@@ -3577,29 +3606,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    );
 	  },
 
-	  // setCaretAtEndOfInput() {
-	  //   var input = this.getInputNode();
-	  //   //taken from http://stackoverflow.com/questions/511088/use-javascript-to-place-cursor-at-end-of-text-in-text-input-element
-	  //   var txtLength = input.value.length;
-	  //   if (input.setSelectionRange) {
-	  //     input.setSelectionRange(txtLength, txtLength);
-	  //   }
-	  //   else if (input.createTextRange) {
-	  //     var fieldRange = input.createTextRange();
-	  //     fieldRange.moveStart('character', txtLength);
-	  //     fieldRange.collapse();
-	  //     fieldRange.select();
-	  //   }
-	  // },
-
 	  isCaretAtBeginningOfInput: function isCaretAtBeginningOfInput() {
 	    var inputNode = this.getInputNode();
+
+	    if (!inputNode || inputNode.tagName !== 'INPUT') return true;
+
 	    return inputNode.selectionStart === inputNode.selectionEnd && inputNode.selectionStart === 0;
 	  },
 
 	  isCaretAtEndOfInput: function isCaretAtEndOfInput() {
 	    var inputNode = this.getInputNode();
-	    return inputNode.selectionStart === inputNode.value.length;
+	    if (!inputNode || inputNode.tagName !== 'INPUT') return true;
+
+	    return inputNode.selectionStart === (inputNode.value || '').length;
 	  },
 
 	  componentWillUnmount: function componentWillUnmount() {
@@ -3702,8 +3721,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return React.createElement('input', {
 	      ref: 'input',
 	      type: 'text',
-	      onBlur: this.props.onBlur,
 	      className: 'form-control',
+	      onBlur: this.props.onCommit,
 	      defaultValue: this.props.value
 	    });
 	  };
@@ -3854,7 +3873,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var React = __webpack_require__(18);
 	var ReactDOM = __webpack_require__(19);
 	var ExcelColumn = __webpack_require__(36);
-	var keyboardHandlerMixin = __webpack_require__(47);
 
 	var EditorBase = (function (_React$Component) {
 	  _inherits(EditorBase, _React$Component);
@@ -3892,19 +3910,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (typeof inputNode.focus === 'function') inputNode.focus();
 	  };
 
-	  EditorBase.prototype.inheritContainerStyles = function inheritContainerStyles() {
-	    return true;
-	  };
-
 	  return EditorBase;
 	})(React.Component);
 
 	EditorBase.propTypes = {
-	  onKeyDown: React.PropTypes.func.isRequired,
-	  value: React.PropTypes.any.isRequired,
-	  onBlur: React.PropTypes.func.isRequired,
+	  value: React.PropTypes.any,
 	  column: React.PropTypes.shape(ExcelColumn).isRequired,
-	  commit: React.PropTypes.func.isRequired
+	  onCommit: React.PropTypes.func.isRequired
 	};
 
 	module.exports = EditorBase;
@@ -3949,6 +3961,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var React = __webpack_require__(18);
 	var ReactDOM = __webpack_require__(19);
 	var DOMMetrics = __webpack_require__(63);
+	var getScrollbarSize = __webpack_require__(32);
 	var min = Math.min;
 	var max = Math.max;
 	var floor = Math.floor;
@@ -3988,6 +4001,43 @@ return /******/ (function(modules) { // webpackBootstrap
 	      scrollTop: 0,
 	      scrollLeft: 0
 	    };
+	  },
+
+	  scrollToCell: function scrollToCell(_ref) {
+	    var x = _ref[0];
+	    var y = _ref[1];
+	    var props = arguments.length <= 1 || arguments[1] === undefined ? this.props : arguments[1];
+	    var rowHeight = props.rowHeight;
+	    var rowsCount = props.rowsCount;
+	    var columnMetrics = props.columnMetrics;
+	    var columns = columnMetrics.columns;
+	    var width = columnMetrics.totalWidth;
+	    var _state = this.state;
+	    var height = _state.height;
+	    var scrollTop = _state.scrollTop;
+	    var scrollLeft = _state.scrollLeft;
+
+	    var cellTop = Math.min(y, rowsCount) * rowHeight,
+	        scrollBar = columnMetrics.width > columnMetrics.totalWidth ? getScrollbarSize() : 0;
+
+	    cellTop = cellTop < scrollTop // moving up
+	    ? cellTop : cellTop + rowHeight > scrollTop + height // moving down
+	    ? cellTop + rowHeight - height + scrollBar : null;
+
+	    var column = columns[x];
+	    var cellLeft = column.locked ? 0 : column.left;
+
+	    var lockedLeft = columns.filter(function (c) {
+	      return c.locked;
+	    }).reduce(function (left, c) {
+	      return left + c.width;
+	    }, 0);
+
+	    cellLeft = cellLeft < scrollLeft + lockedLeft // moving left
+	    ? Math.max(0, cellLeft - lockedLeft) : cellLeft + column.width > scrollLeft + width //moving right
+	    ? cellLeft + column.width - width : null;
+
+	    return { scrollTop: cellTop, scrollLeft: cellLeft };
 	  },
 
 	  updateScroll: function updateScroll(scrollTop, scrollLeft, height, rowHeight, length) {
@@ -4203,7 +4253,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = {
 
 	  componentDidMount: function componentDidMount() {
-	    this._scrollLeft = this.refs.viewport.getScroll().scrollLeft;
+	    this._scrollLeft = this.refs.viewport ? this.refs.viewport.getScroll().scrollLeft : 0;
 	    this._onScroll();
 	  },
 
@@ -4229,7 +4279,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  _onScroll: function _onScroll() {
 	    if (this._scrollLeft !== undefined) {
 	      this.refs.header.setScrollLeft(this._scrollLeft);
-	      this.refs.viewport.setScrollLeft(this._scrollLeft);
+	      if (this.refs.viewport) {
+	        this.refs.viewport.setScrollLeft(this._scrollLeft);
+	      }
 	    }
 	  }
 	};
@@ -4239,11 +4291,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	/**
-	 * @jsx React.DOM
-	 */
 	'use strict';
-
 	var React = __webpack_require__(18);
 
 	var CheckboxEditor = React.createClass({
@@ -4260,7 +4308,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  render: function render() {
 	    var checked = this.props.value != null ? this.props.value : false;
-	    return React.createElement('input', { className: 'react-grid-CheckBox', type: 'checkbox', checked: checked, onClick: this.handleChange });
+	    return React.createElement('input', {
+	      className: 'react-grid-CheckBox',
+	      type: 'checkbox',
+	      checked: checked,
+	      onClick: this.handleChange
+	    });
 	  },
 
 	  handleChange: function handleChange(e) {
@@ -4369,7 +4422,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
 	    if (nextProps.columns) {
-	      if (!ColumnMetrics.sameColumns(this.props.columns, nextProps.columns, this.props.columnEquality)) {
+	      if (!ColumnMetrics.sameColumns(this.props.columns, nextProps.columns, this.props.columnEquality) || nextProps.minWidth !== this.props.minWidth) {
 	        var columnMetrics = this.createColumnMetrics(nextProps);
 	        this.setState({ columnMetrics: columnMetrics });
 	      }
@@ -4388,7 +4441,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 
 	  getColumnMetricsType: function getColumnMetricsType(metrics) {
-	    var totalWidth = this.getTotalWidth();
+	    var totalWidth = metrics.totalWidth || this.getTotalWidth();
 	    var currentMetrics = {
 	      columns: metrics.columns,
 	      totalWidth: totalWidth,
@@ -4425,7 +4478,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var props = arguments.length <= 0 || arguments[0] === undefined ? this.props : arguments[0];
 
 	    var gridColumns = this.setupGridColumns(props);
-	    return this.getColumnMetricsType({ columns: gridColumns, minColumnWidth: this.props.minColumnWidth });
+	    return this.getColumnMetricsType({
+	      columns: gridColumns,
+	      minColumnWidth: props.minColumnWidth,
+	      totalWidth: props.minWidth
+	    });
 	  },
 
 	  onColumnResize: function onColumnResize(index, width) {
@@ -4459,8 +4516,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	'use strict';
 
 	var Editors = {
-	  AutoComplete: __webpack_require__(70),
-	  DropDownEditor: __webpack_require__(72),
+	  DropDownEditor: __webpack_require__(70),
 	  SimpleTextEditor: __webpack_require__(48),
 	  CheckboxEditor: __webpack_require__(65)
 	};
@@ -4469,618 +4525,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 70 */
-/***/ function(module, exports, __webpack_require__) {
-
-	
-	/* Flow issues:
-	overrides? getDefaultValue, getStyle, onKeyDown
-	*/
-	/**
-	 * @jsx React.DOM
-	 */
-	'use strict';
-
-	var React = __webpack_require__(18);
-	var ReactDOM = __webpack_require__(19);
-	var ReactAutocomplete = __webpack_require__(71);
-	var ExcelColumn = __webpack_require__(36);
-
-	var optionPropType = React.PropTypes.shape({
-	  id: React.PropTypes.required,
-	  title: React.PropTypes.string
-	});
-
-	var AutoCompleteEditor = React.createClass({
-	  displayName: 'AutoCompleteEditor',
-
-	  propTypes: {
-	    onCommit: React.PropTypes.func.isRequired,
-	    options: React.PropTypes.arrayOf(optionPropType).isRequired,
-	    label: React.PropTypes.string,
-	    value: React.PropTypes.any.isRequired,
-	    valueParams: React.PropTypes.arrayOf(React.PropTypes.string),
-	    column: React.PropTypes.shape(ExcelColumn).isRequired,
-	    resultIdentifier: React.PropTypes.string,
-	    search: React.PropTypes.string
-	  },
-
-	  getDefaultProps: function getDefaultProps() {
-	    return {
-	      resultIdentifier: 'id'
-	    };
-	  },
-
-	  getValue: function getValue() {
-	    var value,
-	        updated = {};
-	    if (this.hasResults() && this.isFocusedOnSuggestion()) {
-	      value = this.getLabel(this.refs.autoComplete.state.focusedValue);
-	      if (this.props.valueParams) {
-	        value = this.constuctValueFromParams(this.refs.autoComplete.state.focusedValue, this.props.valueParams);
-	      }
-	    } else {
-	      value = this.refs.autoComplete.state.searchTerm;
-	    }
-	    updated[this.props.column.key] = value;
-	    return updated;
-	  },
-
-	  getInputNode: function getInputNode() {
-	    return ReactDOM.findDOMNode(this).getElementsByTagName('input')[0];
-	  },
-
-	  render: function render() {
-	    var label = this.props.label != null ? this.props.label : 'title';
-	    return React.createElement(
-	      'div',
-	      { height: this.props.height, onKeyDown: this.props.onKeyDown },
-	      React.createElement(ReactAutocomplete, { search: this.props.search, ref: 'autoComplete', label: label, onChange: this.handleChange, resultIdentifier: this.props.resultIdentifier, options: this.props.options, value: { title: this.props.value } })
-	    );
-	  },
-
-	  handleChange: function handleChange() {
-	    this.props.onCommit();
-	  },
-
-	  hasResults: function hasResults() {
-	    return this.refs.autoComplete.state.results.length > 0;
-	  },
-
-	  isFocusedOnSuggestion: function isFocusedOnSuggestion() {
-	    var autoComplete = this.refs.autoComplete;
-	    return autoComplete.state.focusedValue != null;
-	  },
-
-	  getLabel: function getLabel(item) {
-	    var label = this.props.label != null ? this.props.label : 'title';
-	    if (typeof label === 'function') {
-	      return label(item);
-	    } else if (typeof label === 'string') {
-	      return item[label];
-	    }
-	  },
-
-	  constuctValueFromParams: function constuctValueFromParams(obj, props) {
-	    if (!props) {
-	      return '';
-	    }
-	    var ret = [];
-	    for (var i = 0, ii = props.length; i < ii; i++) {
-	      ret.push(obj[props[i]]);
-	    }
-	    return ret.join('|');
-	  }
-	});
-
-	module.exports = AutoCompleteEditor;
-
-/***/ },
-/* 71 */
-/***/ function(module, exports, __webpack_require__) {
-
-	(function webpackUniversalModuleDefinition(root, factory) {
-		if(true)
-			module.exports = factory(__webpack_require__(18));
-		else if(typeof define === 'function' && define.amd)
-			define(["react"], factory);
-		else if(typeof exports === 'object')
-			exports["ReactAutocomplete"] = factory(require("react"));
-		else
-			root["ReactAutocomplete"] = factory(root["React"]);
-	})(this, function(__WEBPACK_EXTERNAL_MODULE_1__) {
-	return /******/ (function(modules) { // webpackBootstrap
-	/******/ 	// The module cache
-	/******/ 	var installedModules = {};
-
-	/******/ 	// The require function
-	/******/ 	function __webpack_require__(moduleId) {
-
-	/******/ 		// Check if module is in cache
-	/******/ 		if(installedModules[moduleId])
-	/******/ 			return installedModules[moduleId].exports;
-
-	/******/ 		// Create a new module (and put it into the cache)
-	/******/ 		var module = installedModules[moduleId] = {
-	/******/ 			exports: {},
-	/******/ 			id: moduleId,
-	/******/ 			loaded: false
-	/******/ 		};
-
-	/******/ 		// Execute the module function
-	/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-
-	/******/ 		// Flag the module as loaded
-	/******/ 		module.loaded = true;
-
-	/******/ 		// Return the exports of the module
-	/******/ 		return module.exports;
-	/******/ 	}
-
-
-	/******/ 	// expose the modules object (__webpack_modules__)
-	/******/ 	__webpack_require__.m = modules;
-
-	/******/ 	// expose the module cache
-	/******/ 	__webpack_require__.c = installedModules;
-
-	/******/ 	// __webpack_public_path__
-	/******/ 	__webpack_require__.p = "";
-
-	/******/ 	// Load entry module and return exports
-	/******/ 	return __webpack_require__(0);
-	/******/ })
-	/************************************************************************/
-	/******/ ([
-	/* 0 */
-	/***/ function(module, exports, __webpack_require__) {
-
-		/**
-		 * @jsx React.DOM
-		 */
-		"use strict";
-
-		var React = __webpack_require__(1);
-		var joinClasses = __webpack_require__(2);
-
-		var Autocomplete = React.createClass({ displayName: "Autocomplete",
-
-		  propTypes: {
-		    options: React.PropTypes.any,
-		    search: React.PropTypes.func,
-		    resultRenderer: React.PropTypes.oneOfType([React.PropTypes.component, React.PropTypes.func]),
-		    value: React.PropTypes.object,
-		    onChange: React.PropTypes.func,
-		    onError: React.PropTypes.func
-		  },
-
-		  getDefaultProps: function () {
-		    return { search: searchArray };
-		  },
-
-		  getInitialState: function () {
-		    var searchTerm = this.props.searchTerm ? this.props.searchTerm : this.props.value ? this.props.value.title : "";
-		    return {
-		      results: [],
-		      showResults: false,
-		      showResultsInProgress: false,
-		      searchTerm: searchTerm,
-		      focusedValue: null
-		    };
-		  },
-
-		  getResultIdentifier: function (result) {
-		    if (this.props.resultIdentifier === undefined) {
-		      return result.id;
-		    } else {
-		      return result[this.props.resultIdentifier];
-		    }
-		  },
-
-
-		  render: function () {
-		    var className = joinClasses(this.props.className, "react-autocomplete-Autocomplete", this.state.showResults ? "react-autocomplete-Autocomplete--resultsShown" : undefined);
-		    var style = {
-		      position: "relative",
-		      outline: "none"
-		    };
-		    return React.createElement("div", {
-		      tabIndex: "1",
-		      className: className,
-		      onFocus: this.onFocus,
-		      onBlur: this.onBlur,
-		      style: style }, React.createElement("input", {
-		      ref: "search",
-		      className: "react-autocomplete-Autocomplete__search",
-		      style: { width: "100%" },
-		      onClick: this.showAllResults,
-		      onChange: this.onQueryChange,
-		      onFocus: this.showAllResults,
-		      onBlur: this.onQueryBlur,
-		      onKeyDown: this.onQueryKeyDown,
-		      value: this.state.searchTerm }), React.createElement(Results, {
-		      className: "react-autocomplete-Autocomplete__results",
-		      onSelect: this.onValueChange,
-		      onFocus: this.onValueFocus,
-		      results: this.state.results,
-		      focusedValue: this.state.focusedValue,
-		      show: this.state.showResults,
-		      renderer: this.props.resultRenderer,
-		      label: this.props.label,
-		      resultIdentifier: this.props.resultIdentifier }));
-		  },
-
-		  componentWillReceiveProps: function (nextProps) {
-		    var searchTerm = nextProps.searchTerm ? nextProps.searchTerm : nextProps.value ? nextProps.value.title : "";
-		    this.setState({ searchTerm: searchTerm });
-		  },
-
-		  componentWillMount: function () {
-		    this.blurTimer = null;
-		  },
-
-		  /**
-		    * Show results for a search term value.
-		    *
-		    * This method doesn't update search term value itself.
-		    *
-		    * @param {Search} searchTerm
-		    */
-		  showResults: function (searchTerm) {
-		    this.setState({ showResultsInProgress: true });
-		    this.props.search(this.props.options, searchTerm.trim(), this.onSearchComplete);
-		  },
-
-		  showAllResults: function () {
-		    if (!this.state.showResultsInProgress && !this.state.showResults) {
-		      this.showResults("");
-		    }
-		  },
-
-		  onValueChange: function (value) {
-		    var state = {
-		      value: value,
-		      showResults: false
-		    };
-
-		    if (value) {
-		      state.searchTerm = value.title;
-		    }
-
-		    this.setState(state);
-
-		    if (this.props.onChange) {
-		      this.props.onChange(value);
-		    }
-		  },
-
-		  onSearchComplete: function (err, results) {
-		    if (err) {
-		      if (this.props.onError) {
-		        this.props.onError(err);
-		      } else {
-		        throw err;
-		      }
-		    }
-
-		    this.setState({
-		      showResultsInProgress: false,
-		      showResults: true,
-		      results: results
-		    });
-		  },
-
-		  onValueFocus: function (value) {
-		    this.setState({ focusedValue: value });
-		  },
-
-		  onQueryChange: function (e) {
-		    var searchTerm = e.target.value;
-		    this.setState({
-		      searchTerm: searchTerm,
-		      focusedValue: null
-		    });
-		    this.showResults(searchTerm);
-		  },
-
-		  onFocus: function () {
-		    if (this.blurTimer) {
-		      clearTimeout(this.blurTimer);
-		      this.blurTimer = null;
-		    }
-		    this.refs.search.getDOMNode().focus();
-		  },
-
-		  onBlur: function () {
-		    // wrap in setTimeout so we can catch a click on results
-		    this.blurTimer = setTimeout((function () {
-		      if (this.isMounted()) {
-		        this.setState({ showResults: false });
-		      }
-		    }).bind(this), 100);
-		  },
-
-		  onQueryKeyDown: function (e) {
-		    if (e.key === "Enter") {
-		      e.preventDefault();
-		      if (this.state.focusedValue) {
-		        this.onValueChange(this.state.focusedValue);
-		      }
-		    } else if (e.key === "ArrowUp" && this.state.showResults) {
-		      e.preventDefault();
-		      var prevIdx = Math.max(this.focusedValueIndex() - 1, 0);
-		      this.setState({
-		        focusedValue: this.state.results[prevIdx]
-		      });
-		    } else if (e.key === "ArrowDown") {
-		      e.preventDefault();
-		      if (this.state.showResults) {
-		        var nextIdx = Math.min(this.focusedValueIndex() + (this.state.showResults ? 1 : 0), this.state.results.length - 1);
-		        this.setState({
-		          showResults: true,
-		          focusedValue: this.state.results[nextIdx]
-		        });
-		      } else {
-		        this.showAllResults();
-		      }
-		    }
-		  },
-
-		  focusedValueIndex: function () {
-		    if (!this.state.focusedValue) {
-		      return -1;
-		    }
-		    for (var i = 0, len = this.state.results.length; i < len; i++) {
-		      if (this.getResultIdentifier(this.state.results[i]) === this.getResultIdentifier(this.state.focusedValue)) {
-		        return i;
-		      }
-		    }
-		    return -1;
-		  }
-		});
-
-		var Results = React.createClass({ displayName: "Results",
-
-		  getResultIdentifier: function (result) {
-		    if (this.props.resultIdentifier === undefined) {
-		      if (!result.id) {
-		        throw "id property not found on result. You must specify a resultIdentifier and pass as props to autocomplete component";
-		      }
-		      return result.id;
-		    } else {
-		      return result[this.props.resultIdentifier];
-		    }
-		  },
-
-		  render: function () {
-		    var style = {
-		      display: this.props.show ? "block" : "none",
-		      position: "absolute",
-		      listStyleType: "none"
-		    };
-		    var $__0 = this.props,
-		        className = $__0.className,
-		        props = (function (source, exclusion) {
-		      var rest = {};var hasOwn = Object.prototype.hasOwnProperty;if (source == null) {
-		        throw new TypeError();
-		      }for (var key in source) {
-		        if (hasOwn.call(source, key) && !hasOwn.call(exclusion, key)) {
-		          rest[key] = source[key];
-		        }
-		      }return rest;
-		    })($__0, { className: 1 });
-
-		    return React.createElement("ul", React.__spread({}, props, { style: style, className: className + " react-autocomplete-Results" }), this.props.results.map(this.renderResult));
-		  },
-
-		  renderResult: function (result) {
-		    var focused = this.props.focusedValue && this.getResultIdentifier(this.props.focusedValue) === this.getResultIdentifier(result);
-		    var Renderer = this.props.renderer || Result;
-		    return React.createElement(Renderer, {
-		      ref: focused ? "focused" : undefined,
-		      key: this.getResultIdentifier(result),
-		      result: result,
-		      focused: focused,
-		      onMouseEnter: this.onMouseEnterResult,
-		      onClick: this.props.onSelect,
-		      label: this.props.label });
-		  },
-
-		  componentDidUpdate: function () {
-		    this.scrollToFocused();
-		  },
-
-		  componentDidMount: function () {
-		    this.scrollToFocused();
-		  },
-
-		  componentWillMount: function () {
-		    this.ignoreFocus = false;
-		  },
-
-		  scrollToFocused: function () {
-		    var focused = this.refs && this.refs.focused;
-		    if (focused) {
-		      var containerNode = this.getDOMNode();
-		      var scroll = containerNode.scrollTop;
-		      var height = containerNode.offsetHeight;
-
-		      var node = focused.getDOMNode();
-		      var top = node.offsetTop;
-		      var bottom = top + node.offsetHeight;
-
-		      // we update ignoreFocus to true if we change the scroll position so
-		      // the mouseover event triggered because of that won't have an
-		      // effect
-		      if (top < scroll) {
-		        this.ignoreFocus = true;
-		        containerNode.scrollTop = top;
-		      } else if (bottom - scroll > height) {
-		        this.ignoreFocus = true;
-		        containerNode.scrollTop = bottom - height;
-		      }
-		    }
-		  },
-
-		  onMouseEnterResult: function (e, result) {
-		    // check if we need to prevent the next onFocus event because it was
-		    // probably caused by a mouseover due to scroll position change
-		    if (this.ignoreFocus) {
-		      this.ignoreFocus = false;
-		    } else {
-		      // we need to make sure focused node is visible
-		      // for some reason mouse events fire on visible nodes due to
-		      // box-shadow
-		      var containerNode = this.getDOMNode();
-		      var scroll = containerNode.scrollTop;
-		      var height = containerNode.offsetHeight;
-
-		      var node = e.target;
-		      var top = node.offsetTop;
-		      var bottom = top + node.offsetHeight;
-
-		      if (bottom > scroll && top < scroll + height) {
-		        this.props.onFocus(result);
-		      }
-		    }
-		  }
-		});
-
-		var Result = React.createClass({ displayName: "Result",
-
-		  getDefaultProps: function () {
-		    return {
-		      label: function (result) {
-		        return result.title;
-		      }
-		    };
-		  },
-
-		  getLabel: function (result) {
-		    if (typeof this.props.label === "function") {
-		      return this.props.label(result);
-		    } else if (typeof this.props.label === "string") {
-		      return result[this.props.label];
-		    }
-		  },
-
-		  render: function () {
-		    var className = joinClasses({
-		      "react-autocomplete-Result": true,
-		      "react-autocomplete-Result--active": this.props.focused
-		    });
-
-		    return React.createElement("li", {
-		      style: { listStyleType: "none" },
-		      className: className,
-		      onClick: this.onClick,
-		      onMouseEnter: this.onMouseEnter }, React.createElement("a", null, this.getLabel(this.props.result)));
-		  },
-
-		  onClick: function () {
-		    this.props.onClick(this.props.result);
-		  },
-
-		  onMouseEnter: function (e) {
-		    if (this.props.onMouseEnter) {
-		      this.props.onMouseEnter(e, this.props.result);
-		    }
-		  },
-
-		  shouldComponentUpdate: function (nextProps) {
-		    return nextProps.result.id !== this.props.result.id || nextProps.focused !== this.props.focused;
-		  }
-		});
-
-		/**
-		* Search options using specified search term treating options as an array
-		* of candidates.
-		*
-		* @param {Array.<Object>} options
-		* @param {String} searchTerm
-		* @param {Callback} cb
-		*/
-		function searchArray(options, searchTerm, cb) {
-		  if (!options) {
-		    return cb(null, []);
-		  }
-
-		  searchTerm = new RegExp(searchTerm, "i");
-
-		  var results = [];
-
-		  for (var i = 0, len = options.length; i < len; i++) {
-		    if (searchTerm.exec(options[i].title)) {
-		      results.push(options[i]);
-		    }
-		  }
-
-		  cb(null, results);
-		}
-
-		module.exports = Autocomplete;
-
-	/***/ },
-	/* 1 */
-	/***/ function(module, exports) {
-
-		module.exports = __WEBPACK_EXTERNAL_MODULE_1__;
-
-	/***/ },
-	/* 2 */
-	/***/ function(module, exports, __webpack_require__) {
-
-		var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-		  Copyright (c) 2015 Jed Watson.
-		  Licensed under the MIT License (MIT), see
-		  http://jedwatson.github.io/classnames
-		*/
-
-		function classNames() {
-			var classes = '';
-			var arg;
-
-			for (var i = 0; i < arguments.length; i++) {
-				arg = arguments[i];
-				if (!arg) {
-					continue;
-				}
-
-				if ('string' === typeof arg || 'number' === typeof arg) {
-					classes += ' ' + arg;
-				} else if (Object.prototype.toString.call(arg) === '[object Array]') {
-					classes += ' ' + classNames.apply(null, arg);
-				} else if ('object' === typeof arg) {
-					for (var key in arg) {
-						if (!arg.hasOwnProperty(key) || !arg[key]) {
-							continue;
-						}
-						classes += ' ' + key;
-					}
-				}
-			}
-			return classes.substr(1);
-		}
-
-		// safely export classNames for node / browserify
-		if (typeof module !== 'undefined' && module.exports) {
-			module.exports = classNames;
-		}
-
-		// safely export classNames for RequireJS
-		if (true) {
-			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function() {
-				return classNames;
-			}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-		}
-
-
-	/***/ }
-	/******/ ])
-	});
-	;
-
-/***/ },
-/* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -5145,7 +4589,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = DropDownEditor;
 
 /***/ },
-/* 73 */
+/* 71 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -5153,7 +4597,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	//it currently requires the whole of moment, which we dont want to take as a dependency
 	'use strict';
 
-	var ImageFormatter = __webpack_require__(74);
+	var ImageFormatter = __webpack_require__(72);
 
 	var Formatters = {
 	  ImageFormatter: ImageFormatter
@@ -5162,7 +4606,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = Formatters;
 
 /***/ },
-/* 74 */
+/* 72 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5238,7 +4682,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = ImageFormatter;
 
 /***/ },
-/* 75 */
+/* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
