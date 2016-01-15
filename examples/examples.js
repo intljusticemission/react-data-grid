@@ -20,6 +20,8 @@ var emptyRowsExample = require('./scripts/example15-empty-rows');
 
 var { Route, RouteHandler, Link } = ReactRouter;
 
+window.AutoCompleteEditor = require('./components/AutoCompleteEditor')
+
 var App = React.createClass({
   render: function () {
     return (

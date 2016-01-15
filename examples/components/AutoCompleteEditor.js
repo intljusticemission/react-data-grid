@@ -7,10 +7,10 @@ overrides? getDefaultValue, getStyle, onKeyDown
  */
 'use strict';
 
-var React                   = require('react');
+var React = require('react');
 var ReactDOM = require('react-dom');
-var ReactAutocomplete       = require('ron-react-autocomplete');
-var ExcelColumn             = require('../grids/ExcelColumn');
+var ReactAutocomplete = require('ron-react-autocomplete');
+var ExcelColumn = require('../../src/addons/grids/ExcelColumn');
 
 var optionPropType = React.PropTypes.shape({
       id    :   React.PropTypes.required,

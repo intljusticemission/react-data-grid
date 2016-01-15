@@ -6,7 +6,7 @@
   var ReactDataGrid       = require('react-data-grid-with-addons')
   var Editors             = ReactDataGrid.Editors;
   var Toolbar             = ReactDataGrid.Toolbar;
-  var AutoCompleteEditor  = Editors.AutoComplete;
+  var AutoCompleteEditor  = window.AutoCompleteEditor;
   var DropDownEditor      = Editors.DropDownEditor;
   var joinClasses          = require('classnames');
   var FakeObjectDataStore = require('./FakeObjectDataStore');

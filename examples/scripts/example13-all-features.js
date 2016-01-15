@@ -5,7 +5,7 @@ var faker = require('faker');
 var AllFeaturesExample = `
   var Editors             = ReactDataGrid.Editors;
   var Toolbar             = ReactDataGrid.Toolbar;
-  var AutoCompleteEditor  = Editors.AutoComplete;
+  var AutoCompleteEditor  = window.AutoCompleteEditor;
   var DropDownEditor      = Editors.DropDownEditor;
 
   faker.locale = 'en_GB';
