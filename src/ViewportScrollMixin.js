@@ -55,8 +55,9 @@ module.exports = {
 
   scrollToCell([x, y], props = this.props) {
     let { rowHeight, rowsCount, columnMetrics } = props;
-    let columns = columnMetrics.columns;
-    let { height, width, scrollTop, scrollLeft } = this.state;
+    let { columns, totalWidth: width } = columnMetrics;
+    let { height, scrollTop, scrollLeft } = this.state;
+
 
     let cellTop = Math.min(y, rowsCount) * rowHeight
       , scrollBar = columnMetrics.width > columnMetrics.totalWidth
