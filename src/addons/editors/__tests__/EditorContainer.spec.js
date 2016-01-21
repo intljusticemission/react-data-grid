@@ -9,8 +9,8 @@ var SimpleTextEditor = require('../SimpleTextEditor');
 describe('Editor Container Tests', () => {
   var cellMetaData = {
     selected : {
-      idx : 0,
-      rowIdx :0
+      idx: 0,
+      rowIdx: 0
     },
     onCommit: function() {}
   };

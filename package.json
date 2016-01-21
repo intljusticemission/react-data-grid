@@ -36,7 +36,6 @@
     "classnames": "^1.2.0",
     "fbjs": "0.6.1",
     "object-assign": "^2.0.0",
-    "ron-react-autocomplete": "^2.0.1",
     "uncontrollable": "^3.2.1"
   },
   "devDependencies": {
