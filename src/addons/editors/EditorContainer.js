@@ -174,15 +174,11 @@ var EditorContainer = React.createClass({
     var selected = this.props.cellMetaData.selected;
     var keyCode = selected.initialKeyCode;
 
-    if (keyCode === 'Delete' || keyCode === 'Backspace') {
-      return '';
-    }
-    else if (keyCode === 'Enter') {
+    if (keyCode === 'Enter') {
       return this.props.value;
     }
     else {
-      var text = keyCode ? String.fromCharCode(keyCode) : this.props.value;
-      return text;
+      return '';
     }
   },
 

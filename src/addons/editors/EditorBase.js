@@ -8,7 +8,8 @@ class EditorBase extends React.Component {
 
   getStyle(): {width: string} {
     return {
-      width : '100%'
+      width : '100%',
+      height: this.props.height
     }
   }
 
@@ -28,7 +29,7 @@ class EditorBase extends React.Component {
     }
   }
 
-  focus() {
+  editorWillMount() {
     var inputNode = this.getInputNode();
 
     if (typeof inputNode.focus === 'function')

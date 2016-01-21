@@ -277,8 +277,9 @@ var ReactDataGrid = React.createClass({
       KeyCode_v : 118,
     }
 
-    var idx = this.state.selected.idx
-    if (this.canEdit(idx)) {
+    var { rowIdx, idx } = this.state.selected;
+
+    if (this.canEdit(idx, rowIdx)) {
       if (e.keyCode == keys.KeyCode_c || e.keyCode == keys.KeyCode_C) {
         var value = this.getSelectedValue();
         this.handleCopy({ value : value });
@@ -314,22 +315,28 @@ var ReactDataGrid = React.createClass({
   },
 
   setActive(keyPressed: string) {
-    var idx = this.state.selected.idx;
-    if (this.canEdit(idx) && !this.isActive()) {
+    var { rowIdx, idx } = this.state.selected;
+    if (this.canEdit(idx, rowIdx) && !this.isActive()) {
       notify(this.props.onActive, keyPressed || true)
     }
   },
 
   setInactive() {
-    var idx = this.state.selected.idx;
-    if (this.canEdit(idx) && this.isActive()) {
+    if (this.isActive()) {
       notify(this.props.onActive, false)
     }
   },
 
-  canEdit(idx: number): boolean {
+  canEdit(idx: number, rowIdx): boolean {
     var col = this.getColumn(idx);
-    return this.props.enableCellSelect === true && ((col.editor != null) || col.editable);
+    var row = this.props.rowGetter(rowIdx);
+    if (this.props.enableCellSelect === true) {
+      if (col.editable === false) return false
+      if (col.editable === true) return true
+      if (typeof col.editable === 'function') return col.editable(row, idx, rowIdx)
+
+      return col.editor != null
+    }
   },
 
   isActive(): boolean {
@@ -435,29 +442,32 @@ var ReactDataGrid = React.createClass({
     return this.props.onCellCopyPaste !== null;
   },
 
-  handleCopy(args: {value: string}) {
-    if (!this.copyPasteEnabled()) { return; }
-      var textToCopy = args.value;
-      var selected = this.state.selected;
-      var copied = { idx : selected.idx, rowIdx : selected.rowIdx };
-      this.setState({ textToCopy:textToCopy, copied : copied });
+  handleCopy({ value }) {
+    if (!this.copyPasteEnabled())
+      return;
+    var textToCopy = value;
+    var selected = this.state.selected;
+    var copied = { idx : selected.idx, rowIdx : selected.rowIdx };
+    this.setState({ textToCopy, copied });
   },
 
   handlePaste() {
-    if (!this.copyPasteEnabled()) { return; }
-      var selected = this.state.selected;
+    var selected = this.state.selected;
 
-      var cellKey = this.getColumn(this.state.selected.idx).key;
-      if (this.props.onCellCopyPaste) {
-        this.props.onCellCopyPaste({
-          cellKey,
-          rowIdx: selected.rowIdx,
-          value: this.state.textToCopy,
-          fromRow: this.state.copied.rowIdx,
-          toRow : selected.rowIdx
-        });
-      }
-      this.setState({ copied : null });
+    if (!this.copyPasteEnabled())
+      return;
+
+    var cellKey = this.getColumn(this.state.selected.idx).key;
+    if (this.props.onCellCopyPaste) {
+      this.props.onCellCopyPaste({
+        cellKey,
+        rowIdx: selected.rowIdx,
+        value: this.state.textToCopy,
+        fromRow: this.state.copied.rowIdx,
+        toRow : selected.rowIdx
+      });
+    }
+    this.setState({ copied : null });
   },
 
   dragEnabled: function(): boolean {
@@ -474,7 +484,7 @@ var ReactDataGrid = React.createClass({
         && idx < this.getSize()
         && rowIdx < this.props.rowsCount
       ) {
-        this.setState({ dragged: dragged });
+        this.setState({ dragged });
       }
   },
 
@@ -482,7 +492,7 @@ var ReactDataGrid = React.createClass({
     if (!this.dragEnabled()) return;
     var dragged = this.state.dragged;
     dragged.overRowIdx = row;
-    this.setState({ dragged : dragged });
+    this.setState({ dragged });
   },
 
   handleDragEnd() {
@@ -496,9 +506,14 @@ var ReactDataGrid = React.createClass({
     fromRow = selected.rowIdx < dragged.overRowIdx ? selected.rowIdx : dragged.overRowIdx;
     toRow   = selected.rowIdx > dragged.overRowIdx ? selected.rowIdx : dragged.overRowIdx;
     if (this.props.onCellsDragged) {
-      this.props.onCellsDragged({ cellKey: cellKey, fromRow: fromRow, toRow : toRow, value : dragged.value });
+      this.props.onCellsDragged({
+        cellKey,
+        fromRow,
+        toRow,
+        value: dragged.value
+      });
     }
-    this.setState({ dragged : { complete : true }});
+    this.setState({ dragged: { complete : true }});
   },
 
   handleTerminateDrag() {
