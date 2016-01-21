@@ -463,8 +463,10 @@ var ReactDataGrid = React.createClass({
         cellKey,
         rowIdx: selected.rowIdx,
         value: this.state.textToCopy,
+        fromCell: this.state.copied.idx,
         fromRow: this.state.copied.rowIdx,
-        toRow : selected.rowIdx
+        toRow: selected.rowIdx,
+        toCell: selected.idx,
       });
     }
     this.setState({ copied : null });
