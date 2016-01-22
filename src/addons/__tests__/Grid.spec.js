@@ -342,7 +342,9 @@ describe('Grid', function () {
             rowIdx: 5,
             value: 'banana',
             fromRow: 1,
-            toRow: 5
+            fromCell: 1,
+            toRow: 5,
+            toCell: 1
           });
         });
       });
@@ -505,7 +507,7 @@ describe('Grid', function () {
 
       it('should set the selected cell to be on the last row', function () {
         expect(this.component.state.selected).toEqual({
-          idx: 1,
+          idx: 0,
           rowIdx: 1000,
           ...activeInfo
         });
