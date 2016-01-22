@@ -1,11 +1,11 @@
 /* @flow */
 'use strict';
 
-var React             = require('react');
-var Canvas            = require('./Canvas');
-var PropTypes            = React.PropTypes;
-
-var ViewportScroll      = require('./ViewportScrollMixin');
+var React = require('react');
+var Canvas = require('./Canvas');
+var PropTypes = React.PropTypes;
+var colUtils = require('./ColumnUtils')
+var ViewportScroll = require('./ViewportScrollMixin');
 
 
 
@@ -28,10 +28,11 @@ var Viewport = React.createClass({
   },
 
   componentWillReceiveProps(nextProps) {
-    let { cellMetaData } = nextProps;
+    let { cellMetaData, columnMetrics } = nextProps;
+    let { selected: { rowIdx, idx }} = cellMetaData
+    let column = colUtils.getColumn(columnMetrics.columns, idx)
 
-    if (this.selectedCellChanged(cellMetaData)) {
-      let { selected: { rowIdx, idx }} = cellMetaData
+    if (!column.locked && this.selectedCellChanged(cellMetaData)) {
       let { scrollTop, scrollLeft } = this.scrollToCell([idx, rowIdx], nextProps)
 
       cancelAnimationFrame(this._raf)
