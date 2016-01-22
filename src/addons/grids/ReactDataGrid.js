@@ -405,7 +405,7 @@ var ReactDataGrid = React.createClass({
   onAfterAddRow:function(numberOfRows: number) {
     let { selected } = this.state;
     notify(this.props.onSelectCell,
-      [1, numberOfRows - 2],
+      [0, numberOfRows - 2],
       [selected.idx, selected.rowIdx]
     )
   },
