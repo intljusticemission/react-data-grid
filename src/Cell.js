@@ -49,7 +49,10 @@ var Cell = React.createClass({
   componentDidUpdate(prevProps) {
     var dragged = this.props.cellMetaData.dragged;
 
-    if (this.isSelected() !== this.isSelected(prevProps))
+    if (
+      this.isSelected() !== this.isSelected(prevProps) ||
+      this.isActive() !== this.isActive(prevProps)
+    )
       this.checkFocus();
 
     if (dragged && dragged.complete === true) {
@@ -169,10 +172,10 @@ var Cell = React.createClass({
     );
   },
 
-  isActive(): boolean {
-    var meta = this.props.cellMetaData;
+  isActive(props = this.props): boolean {
+    var meta = props.cellMetaData;
     if (meta == null || meta.selected == null) { return false; }
-    return this.isSelected() && meta.selected.active === true;
+    return this.isSelected(props) && meta.selected.active === true;
   },
 
   isCellSelectionChanging(nextProps: {idx: number; cellMetaData: {selected: {idx: number}}}): boolean {
@@ -207,10 +210,7 @@ var Cell = React.createClass({
 
   checkFocus() {
     if (this.isSelected() && !this.isActive()) {
-      let node = ReactDOM.findDOMNode(this);
-
-      if (document.activeElement !== ReactDOM.findDOMNode(this))
-        node.focus();
+      ReactDOM.findDOMNode(this).focus();
     }
   },
 
