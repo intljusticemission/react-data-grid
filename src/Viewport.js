@@ -59,6 +59,7 @@ var Viewport = React.createClass({
         style={style}>
         <Canvas
           ref="canvas"
+          getRowKey={this.props.getRowKey}
           totalWidth={this.props.totalWidth}
           width={this.props.columnMetrics.width}
           rowGetter={this.props.rowGetter}

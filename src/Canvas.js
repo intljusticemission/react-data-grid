@@ -32,10 +32,11 @@ var Canvas = React.createClass({
     var displayEnd = this.state.displayEnd;
     var rowHeight = this.props.rowHeight;
     var length = this.props.rowsCount;
+    var getKey = this.props.getRowKey;
 
     var rows = this.getRows(displayStart, displayEnd)
         .map((row, idx) => this.renderRow({
-          key: displayStart + idx,
+          key: getKey ? getKey(row) : displayStart + idx,
           ref: idx,
           idx: displayStart + idx,
           row: row,

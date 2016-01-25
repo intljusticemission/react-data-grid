@@ -73,6 +73,7 @@ var Grid = React.createClass({
                 <Viewport
                   ref="viewport"
                   width={this.props.columnMetrics.width}
+                  getRowKey={this.props.getRowKey}
                   rowHeight={this.props.rowHeight}
                   rowRenderer={this.props.rowRenderer}
                   rowGetter={this.props.rowGetter}
