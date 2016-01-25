@@ -83,22 +83,29 @@ var Example = React.createClass({
     return this.state.rows[rowIdx];
   },
 
-  handleGridSort : function(sortColumn, sortDirection){
+  handleGridSort : function(sortInfo){
+    let rows = this.state.originalRows.slice(0);
 
-    var comparer = function(a, b) {
-      if(sortDirection === 'ASC'){
-        return (a[sortColumn] > b[sortColumn]) ? 1 : -1;
-      }else if(sortDirection === 'DESC'){
-        return (a[sortColumn] < b[sortColumn]) ? 1 : -1;
-      }
-    }
-    var rows = sortDirection === 'NONE' ? this.state.originalRows.slice(0) : this.state.rows.sort(comparer);
-    this.setState({rows : rows});
+    rows = Object.keys(sortInfo).reduce((rows, sortColumn) => {
+      let sortDirection = sortInfo[sortColumn];
+      rows.sort(function (a, b) {
+        if(sortDirection === 'ASC'){
+          return (a[sortColumn] > b[sortColumn]) ? 1 : -1;
+        }else if(sortDirection === 'DESC'){
+          return (a[sortColumn] < b[sortColumn]) ? 1 : -1;
+        }
+      })
+      return rows;
+    }, rows)
+
+
+    this.setState({ rows, sortInfo });
   },
 
   render:function(){
     return(
       <ReactDataGrid
+        sortInfo={this.state.sortInfo}
         onGridSort={this.handleGridSort}
         columns={columns}
         rowGetter={this.rowGetter}
