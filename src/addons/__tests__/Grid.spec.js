@@ -323,9 +323,9 @@ describe('Grid', function () {
             rowIdx: 5,
             value: 'banana',
             fromRow: 1,
-            fromCell: 1,
+            fromColumn: 'title',
             toRow: 5,
-            toCell: 1
+            toColumn: 'title'
           });
         });
       });
