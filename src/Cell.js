@@ -68,7 +68,6 @@ var Cell = React.createClass({
   },
 
   shouldComponentUpdate(nextProps: any): boolean {
-
     return this.props.column.width !== nextProps.column.width
       || this.props.column.left !== nextProps.column.left
       || this.props.rowData !== nextProps.rowData
@@ -113,14 +112,16 @@ var Cell = React.createClass({
   renderCellContent(): ReactElement {
     var {
         cellMetaData, column, idx
-      , rowIdx, rowData, height, isExpanded } = this.props
+      , rowIdx, rowData, height, isExpanded, isRowSelected } = this.props
       , formatter = column.formatter
       , CellContent;
 
     let props = {
         cellMetaData, column, idx, rowIdx
-      , rowData, height, isExpanded
+      , rowData, height
+      , isExpanded, isRowSelected
       , value: this.getValue()
+      , isSelected: this.isSelected()
     }
 
     if (this.isActive()) {
@@ -161,7 +162,7 @@ var Cell = React.createClass({
     var meta = props.cellMetaData;
     if (meta == null || meta.selected == null) { return false; }
 
-    return (
+    return !!(
       meta.selected
       && meta.selected.rowIdx === props.rowIdx
       && meta.selected.idx === props.idx

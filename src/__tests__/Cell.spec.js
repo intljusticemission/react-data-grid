@@ -36,6 +36,7 @@ describe('Cell Tests', () => {
     tabIndex : 1,
     column: { key: 'location' },
     isExpanded: false,
+    isRowSelected: false,
     cellMetaData: testCellMetaData,
     handleDragStart: function() {},
     rowData : { name : 'Johnny Test', location : 'Wicklow', likesTesting :'Absolutely' },
@@ -85,7 +86,9 @@ describe('Cell Tests', () => {
       var props = {
         value : 'Wicklow',
         column : testProps.column,
-        isExpanded : false,
+        isExpanded: false,
+        isSelected: true,
+        isRowSelected: false,
         rowData : testProps.rowData,
         rowIdx : testProps.rowIdx,
         idx : testProps.idx,
