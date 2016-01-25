@@ -473,16 +473,19 @@ var ReactDataGrid = React.createClass({
     if (!this.copyPasteEnabled())
       return;
 
-    var cellKey = this.getColumn(this.state.selected.idx).key;
+    var fromKey = this.getColumn(this.state.copied.idx).key;
+    var toKey = this.getColumn(selected.idx).key;
+
     if (this.props.onCellCopyPaste) {
+
       this.props.onCellCopyPaste({
-        cellKey,
+        cellKey: toKey,
         rowIdx: selected.rowIdx,
         value: this.state.textToCopy,
-        fromCell: this.state.copied.idx,
+        fromColumn: fromKey,
         fromRow: this.state.copied.rowIdx,
         toRow: selected.rowIdx,
-        toCell: selected.idx,
+        toColumn: toKey,
       });
     }
     this.setState({ copied : null });
@@ -521,6 +524,7 @@ var ReactDataGrid = React.createClass({
     var selected = this.state.selected;
     var dragged = this.state.dragged;
     var cellKey = this.getColumn(this.state.selected.idx).key;
+
     fromRow = selected.rowIdx;
     toRow   = dragged.overRowIdx;
     if (this.props.onCellsDragged) {
