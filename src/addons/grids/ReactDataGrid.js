@@ -184,7 +184,6 @@ var ReactDataGrid = React.createClass({
     if (React.isValidElement(Toolbar)) {
       return( React.cloneElement(Toolbar, { onToggleFilter : this.onToggleFilter, numberOfRows : this.props.rowsCount }));
     }
-
   },
 
   onSelect(selected: SelectedType) {
@@ -360,7 +359,7 @@ var ReactDataGrid = React.createClass({
           formatter: <CheckboxEditor/>,
           filterable: false,
           headerRenderer: <input type="checkbox" onChange={this.handleCheckboxChange} />,
-          width : 60,
+          width : 30,
           locked: true,
           ...userProps,
           onCellChange: this.handleRowSelect,

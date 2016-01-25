@@ -54,10 +54,6 @@
   background-color: #ffffff;
   color: inherit;
   padding: 0px;
-  border-color: #e7eaec;
-  border-image: none;
-  border-style: solid solid none;
-  border-width: 1px;
   clear : both;
 }
 
@@ -66,13 +62,18 @@
   border: 1px solid #dddddd;
 }
 .react-grid-Canvas {
-  background-color: #ffffff;
+  background-color: #f9f9f9;
 }
+
+.react-grid-Canvas > div {
+  padding-bottom: 10px;
+}
+
 .react-grid-Cell {
   background-color: #ffffff;
   padding-left: 8px;
   padding-right: 8px;
-  border-top: 1px solid #dddddd;
+  border-bottom: 1px solid #dddddd;
 }
 .react-grid-Cell:not(.editing) .react-grid-Cell__value {
   white-space: nowrap;
@@ -194,6 +195,7 @@ input.react-grid-CheckBox {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+
 }
 .react-grid-HeaderCell {
   -webkit-user-select: none;
@@ -204,7 +206,9 @@ input.react-grid-CheckBox {
   padding: 8px;
   font-weight: bold;
   border-right: 1px solid #dddddd;
+  border-bottom: 1px solid #dddddd;
 }
+
 .react-grid-HeaderCell__value {
   white-space: nowrap;
   text-overflow: ellipsis;

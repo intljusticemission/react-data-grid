@@ -44,11 +44,16 @@ var HeaderCell = React.createClass({
   },
 
   getCell(): ReactComponent {
+    let props = {
+      column: this.props.column,
+      className: 'react-grid-HeaderCell__value'
+    };
+
     if (React.isValidElement(this.props.renderer)) {
-      return React.cloneElement(this.props.renderer, { column : this.props.column });
+      return React.cloneElement(this.props.renderer, props);
     }
     else {
-      return this.props.renderer({ column: this.props.column });
+      return this.props.renderer(props);
     }
   },
 
@@ -111,8 +116,8 @@ var HeaderCell = React.createClass({
   }
 });
 
-function simpleCellRenderer(props: {column: {name: string}}): ReactElement {
-  return <div className="widget-HeaderCell__value">{props.column.name}</div>;
+function simpleCellRenderer(props): ReactElement {
+  return <div {...props}>{props.column.name}</div>;
 }
 
 

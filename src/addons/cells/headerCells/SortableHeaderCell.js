@@ -46,18 +46,30 @@ var SortableHeaderCell = React.createClass({
   },
 
   render: function(): ?ReactElement {
-    var className = joinClasses({
+    let sorting =  this.props.sortDirection &&  this.props.sortDirection !== DEFINE_SORT.NONE
+    var className = joinClasses(this.props.className, {
       'react-grid-HeaderCell-sortable': true,
       'react-grid-HeaderCell-sortable--ascending': this.props.sortDirection === 'ASC',
       'react-grid-HeaderCell-sortable--descending': this.props.sortDirection === 'DESC'
     });
 
     return (
-      <div className={className}
+      <div
+        title={this.props.column.name}
+        className={className}
         onClick={this.onClick}
-        style={{ cursor: 'pointer' }}>
+        style={{
+          cursor: 'pointer',
+          position: 'relative',
+          paddingRight: sorting ? 15 : undefined
+        }}
+      >
         {this.props.column.name}
-        <span className="pull-right">{this.getSortByText()}</span>
+        { !!sorting &&
+          <span style={{ position: 'absolute', right: 0 }}>
+            {this.getSortByText()}
+          </span>
+        }
       </div>
     );
   }
