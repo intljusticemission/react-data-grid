@@ -15,7 +15,7 @@ describe('Header Unit Tests', () => {
   var HeaderCellStub= StubComponent('HeaderCell');
 
   rewireModule(HeaderRow, {
-    SortableHeaderCell    : SortableHeaderCellStub,
+    SortableHeaderCell: SortableHeaderCellStub,
     HeaderCell: HeaderCellStub
   });
 
@@ -23,8 +23,7 @@ describe('Header Unit Tests', () => {
     columns : helpers.columns,
     onColumnResize : function() {},
     onSort: function() {},
-    sortDirection : 'NONE',
-    sortColumn: null,
+    sortInfo: null,
     height: 35
   }
 
@@ -39,9 +38,11 @@ describe('Header Unit Tests', () => {
 
   describe('When column is sortable', () => {
 
-    var sortableColIdx =1;
+    var sortableColIdx = 1, sortInfo;
     beforeEach(() => {
-
+      sortInfo = {
+        [testProps.columns[sortableColIdx].key]: 'ASC'
+      }
       testProps.columns[sortableColIdx].sortable = true;
       headerRow = TestUtils.renderIntoDocument(<HeaderRow {...testProps} sortColumn={testProps.columns[sortableColIdx].key} />);
     })
@@ -57,7 +58,7 @@ describe('Header Unit Tests', () => {
     });
 
     it('should pass sort direction as props to headerRenderer when column is sortColumn', () => {
-      headerRow = TestUtils.renderIntoDocument(<HeaderRow {...testProps} sortColumn={testProps.columns[sortableColIdx].key} sortDirection={'ASC'} />);
+      headerRow = TestUtils.renderIntoDocument(<HeaderRow {...testProps} sortInfo={sortInfo} />);
       var headerCells = TestUtils.scryRenderedComponentsWithType(headerRow, HeaderCellStub);
       var sortableHeaderRenderer = headerCells[sortableColIdx].props.renderer;
       expect(sortableHeaderRenderer.props.sortDirection).toEqual('ASC');
@@ -66,11 +67,12 @@ describe('Header Unit Tests', () => {
     it('should call onSort when headerRender triggers sort', () => {
       //arrange
       spyOn(testProps, 'onSort');
-      headerRow = TestUtils.renderIntoDocument(<HeaderRow {...testProps} sortColumn={testProps.columns[sortableColIdx].key} sortDirection={'ASC'} />);
+      headerRow = TestUtils.renderIntoDocument(<HeaderRow {...testProps} sortInfo={sortInfo} />);
       var headerCells = TestUtils.scryRenderedComponentsWithType(headerRow, HeaderCellStub);
       var sortableHeaderRenderer = headerCells[sortableColIdx].props.renderer;
       //act
       sortableHeaderRenderer.props.onSort('title', 'DESC');
+
       //assert
       expect(testProps.onSort).toHaveBeenCalled();
       expect(testProps.onSort.mostRecentCall.args[0]).toEqual('title');

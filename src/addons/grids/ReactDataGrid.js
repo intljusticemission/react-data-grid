@@ -11,6 +11,7 @@ var DOMMetrics = require('../../DOMMetrics');
 var ColumnMetricsMixin = require('../../ColumnMetricsMixin');
 var RowUtils = require('../../RowUtils');
 var ColumnUtils = require('../../ColumnUtils');
+var SORT_TYPES = require('../../HeaderRow').SORT;
 
 let notify = (handler, ...args) => handler && handler(...args)
 
@@ -21,20 +22,29 @@ var ReactDataGrid = React.createClass({
     headerRowHeight: React.PropTypes.number,
     minHeight: React.PropTypes.number.isRequired,
     minWidth: React.PropTypes.number,
+
+    enableCellSelect : React.PropTypes.bool,
     enableRowSelect: React.PropTypes.bool,
+
+    /**
+     * A column definition for the "select row" cell
+     */
+    selectRowColumn: React.PropTypes.object,
+
     onRowUpdated:React.PropTypes.func,
     rowGetter: React.PropTypes.func.isRequired,
-    rowsCount : React.PropTypes.number.isRequired,
+    rowsCount: React.PropTypes.number.isRequired,
     toolbar:React.PropTypes.element,
-    enableCellSelect : React.PropTypes.bool,
     columns: React.PropTypes.oneOfType([
       React.PropTypes.object,
       React.PropTypes.array
     ]).isRequired,
-    onFilter : React.PropTypes.func,
-    onCellCopyPaste : React.PropTypes.func,
-    onCellsDragged : React.PropTypes.func,
-    onAddFilter : React.PropTypes.func
+    sortType: React.PropTypes.oneOf(['simple', 'multiple']),
+    onFilter: React.PropTypes.func,
+    onGridSort: React.PropTypes.func,
+    onCellCopyPaste: React.PropTypes.func,
+    onCellsDragged: React.PropTypes.func,
+    onAddFilter: React.PropTypes.func
   },
 
   mixins: [
@@ -49,7 +59,8 @@ var ReactDataGrid = React.createClass({
       tabIndex : -1,
       rowHeight: 35,
       enableRowSelect : false,
-      minHeight : 350
+      minHeight : 350,
+      sortType: 'simple'
     };
   },
 
@@ -73,8 +84,6 @@ var ReactDataGrid = React.createClass({
       expandedRows: [],
       canFilter: false,
       columnFilters: {},
-      sortDirection: null,
-      sortColumn: null,
       dragged: null,
       scrollOffset: 0
     }
@@ -164,8 +173,7 @@ var ReactDataGrid = React.createClass({
             selectedRows={this.state.selectedRows}
             expandedRows={this.state.expandedRows}
             rowOffsetHeight={this.getRowOffsetHeight()}
-            sortColumn={this.state.sortColumn}
-            sortDirection={this.state.sortDirection}
+            sortInfo={this.props.sortInfo}
             onSort={this.handleSort}
             minHeight={this.props.minHeight}
             totalWidth={gridWidth}
@@ -355,15 +363,18 @@ var ReactDataGrid = React.createClass({
   setupGridColumns(props = this.props): Array<any> {
     var cols = props.columns.slice(0);
     if (props.enableRowSelect) {
+      let userProps = props.selectRowColumn
+
       var selectColumn = {
-          key: 'select-row',
-          name: '',
-          formatter: props.selectRowRenderer || <CheckboxEditor/>,
-          onCellChange: this.handleRowSelect,
+          formatter: <CheckboxEditor/>,
           filterable: false,
           headerRenderer: <input type="checkbox" onChange={this.handleCheckboxChange} />,
           width : 60,
-          locked: true
+          locked: true,
+          ...userProps,
+          onCellChange: this.handleRowSelect,
+          key: 'select-row',
+          name: ''
       };
       var unshiftedCols = cols.unshift(selectColumn);
       cols = unshiftedCols > 0 ? cols : unshiftedCols;
@@ -383,7 +394,7 @@ var ReactDataGrid = React.createClass({
     for (var i = 0; i < this.props.rowsCount; i++) {
       selectedRows.push(allRowsSelected);
     }
-    this.setState({ selectedRows : selectedRows });
+    this.setState({ selectedRows });
   },
 
   // columnKey not used here as this function will select the whole row,
@@ -432,10 +443,25 @@ var ReactDataGrid = React.createClass({
     return offsetHeight;
   },
 
-  handleSort: function(columnKey: string, direction: SortType) {
-    this.setState({ sortDirection: direction, sortColumn: columnKey }, function() {
-      this.props.onGridSort(columnKey, direction);
-    });
+  handleSort(columnKey: string, direction: SortType) {
+    let { sortInfo, sortType } = this.props;
+    let existing = (sortInfo || {})[columnKey];
+
+    if ((existing && existing === direction) ||
+        (!existing && direction === SORT_TYPES.NONE)
+    ) {
+      return
+    }
+
+    sortInfo = sortType === 'simple' ? {} : { ...sortInfo }
+
+    if (direction === SORT_TYPES.NONE && sortInfo[columnKey])
+      delete sortInfo[columnKey];
+    else
+      sortInfo[columnKey] = direction;
+
+    this.props.onGridSort &&
+      this.props.onGridSort(sortInfo);
   },
 
   copyPasteEnabled: function(): boolean {
@@ -528,5 +554,6 @@ var ReactDataGrid = React.createClass({
 
 module.exports = uncontrollable(ReactDataGrid, {
   active: 'onActive',
-  selectedCell: 'onSelectCell'
+  selectedCell: 'onSelectCell',
+  sortInfo: 'onGridSort'
 })

@@ -17,7 +17,8 @@ var Header = React.createClass({
     columnMetrics: React.PropTypes.shape({  width: React.PropTypes.number.isRequired }).isRequired,
     totalWidth: React.PropTypes.number,
     height: React.PropTypes.number.isRequired,
-    headerRows : React.PropTypes.array.isRequired
+    headerRows: React.PropTypes.array.isRequired,
+    sortInfo: HeaderRow.propTypes.sortInfo
   },
 
   render(): ?ReactElement {
@@ -43,8 +44,7 @@ var Header = React.createClass({
     || this.props.totalWidth != nextProps.totalWidth
     || (this.props.headerRows.length != nextProps.headerRows.length)
     || (this.state.resizing != nextState.resizing)
-    || this.props.sortColumn != nextProps.sortColumn
-    || this.props.sortDirection != nextProps.sortDirection;
+    || this.props.sortInfo != nextProps.sortInfo;
     return update;
   },
 
@@ -76,8 +76,7 @@ var Header = React.createClass({
           columns={columnMetrics.columns}
           resizing={resizeColumn}
           headerCellRenderer={row.headerCellRenderer}
-          sortColumn={this.props.sortColumn}
-          sortDirection={this.props.sortDirection}
+          sortInfo={this.props.sortInfo}
           onSort={this.props.onSort}
         />
       )

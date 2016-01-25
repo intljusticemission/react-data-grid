@@ -32,7 +32,7 @@ var Viewport = React.createClass({
     let { selected: { rowIdx, idx }} = cellMetaData
     let column = colUtils.getColumn(columnMetrics.columns, idx)
 
-    if (!column.locked && this.selectedCellChanged(cellMetaData)) {
+    if (idx !== -1 && !column.locked && this.selectedCellChanged(cellMetaData)) {
       let { scrollTop, scrollLeft } = this.scrollToCell([idx, rowIdx], nextProps)
 
       cancelAnimationFrame(this._raf)
@@ -40,7 +40,6 @@ var Viewport = React.createClass({
         if (this.isMounted())
           this.refs.canvas.setScroll(scrollTop, scrollLeft)
       })
-
     }
   },
 

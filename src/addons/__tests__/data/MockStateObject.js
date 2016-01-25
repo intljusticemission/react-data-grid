@@ -31,8 +31,6 @@ module.exports = function (stateValues) {
     canFilter: false,
     expandedRows: [],
     columnFilters: {},
-    sortDirection: null,
-    sortColumn: null,
     dragged: null,
     scrollOffset: 0
   }, stateValues);

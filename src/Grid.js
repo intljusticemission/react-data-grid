@@ -22,8 +22,7 @@ var Grid = React.createClass({
     selectedRows: PropTypes.oneOfType([PropTypes.array, PropTypes.func]),
     rowsCount: PropTypes.number,
     onRows: PropTypes.func,
-    sortColumn : React.PropTypes.string,
-    sortDirection : React.PropTypes.oneOf(['ASC', 'DESC', 'NONE']),
+    sortInfo: Header.propTypes.sortInfo,
     rowOffsetHeight: PropTypes.number.isRequired,
     onViewportKeydown : PropTypes.func.isRequired,
     onViewportDragStart : PropTypes.func.isRequired,
@@ -59,8 +58,7 @@ var Grid = React.createClass({
           height={this.props.rowHeight}
           totalWidth={this.props.totalWidth}
           headerRows={headerRows}
-          sortColumn={this.props.sortColumn}
-          sortDirection={this.props.sortDirection}
+          sortInfo={this.props.sortInfo}
           onSort={this.props.onSort}
         />
         { this.props.rowsCount >= 1 || (this.props.rowsCount === 0 && !this.props.emptyRowsView)

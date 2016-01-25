@@ -19,8 +19,20 @@ var HeaderRowStyle  = {
   position: React.PropTypes.string
 };
 
+
 type SortType = {ASC: string; DESC: string};
-var DEFINE_SORT = {
+
+function objectOf(propType) {
+  return function (props, name, ...args) {
+    let obj = props[name] || {}
+    let invalid = Object.keys(obj)
+      .some(k => propType(obj, k, ...args))
+
+    if (invalid) return new Error('Invalid object key')
+  }
+}
+
+const DEFINE_SORT = {
   ASC : 'ASC',
   DESC : 'DESC',
   NONE  : 'NONE'
@@ -34,6 +46,9 @@ var HeaderRow = React.createClass({
     columns:  PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
     onColumnResize: PropTypes.func,
     onSort: PropTypes.func.isRequired,
+    sortInfo: objectOf(
+      PropTypes.oneOf(Object.keys(DEFINE_SORT).map(k => DEFINE_SORT[k]))
+    ),
     style: PropTypes.shape(HeaderRowStyle)
 
   },
@@ -61,7 +76,7 @@ var HeaderRow = React.createClass({
 
   getHeaderRenderer(column) {
     if (column.sortable) {
-      var sortDirection = (this.props.sortColumn === column.key) ? this.props.sortDirection : DEFINE_SORT.NONE;
+      var sortDirection = (this.props.sortInfo || {})[column.key] || DEFINE_SORT.NONE
       return <SortableHeaderCell columnKey={column.key} onSort={this.props.onSort} sortDirection={sortDirection}/>;
     }
     else {
@@ -107,14 +122,19 @@ var HeaderRow = React.createClass({
   },
 
 
-  shouldComponentUpdate(nextProps: {width: ?(number | string); height: number; columns: Array<ExcelColumn>; style: ?HeaderRowStyle; onColumnResize: ?any}): boolean {
+  shouldComponentUpdate(nextProps: {
+    width: ?(number | string);
+    height: number;
+    columns: Array<ExcelColumn>;
+    style: ?HeaderRowStyle;
+    onColumnResize: ?any}
+  ) : boolean {
     return (
       nextProps.width !== this.props.width
       || nextProps.height !== this.props.height
       || nextProps.columns !== this.props.columns
       || !shallowEqual(nextProps.style, this.props.style)
-      || this.props.sortColumn != nextProps.sortColumn
-      || this.props.sortDirection != nextProps.sortDirection
+      || this.props.sortInfo != nextProps.sortInfo
     );
   },
 
@@ -128,5 +148,7 @@ var HeaderRow = React.createClass({
   }
 
 });
+
+HeaderRow.SORT = DEFINE_SORT;
 
 module.exports = HeaderRow;
