@@ -1,6 +1,6 @@
 {
   "name": "@ijm/react-data-grid",
-  "version": "0.16.3",
+  "version": "0.17.0",
   "description": "Data grid for React",
   "main": "lib/index.js",
   "files": [
