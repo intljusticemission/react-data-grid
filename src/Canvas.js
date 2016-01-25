@@ -41,7 +41,7 @@ var Canvas = React.createClass({
           row: row,
           height: rowHeight,
           columns: this.props.columns,
-          isSelected : this.isRowSelected(displayStart + idx),
+          isSelected : this.isRowSelected(row),
           expandedRows : this.props.expandedRows,
           cellMetaData : this.props.cellMetaData
         }));
@@ -112,8 +112,9 @@ var Canvas = React.createClass({
     };
   },
 
-  isRowSelected(rowIdx: number): boolean {
-    return this.props.selectedRows && this.props.selectedRows[rowIdx] === true;
+  isRowSelected(row) {
+    return this.props.selectedRows
+        && this.props.selectedRows.indexOf(row) !== -1;
   },
 
   _currentRowsLength : 0,

@@ -28,8 +28,8 @@ describe('Grid', function () {
     ];
 
     this._rows = [];
-    this._selectedRows = [];
     this.rowGetter = (i) => this._rows[i];
+    this.noop = function () {};
 
     for (var i = 0; i < 1000; i++) {
       this._rows.push({
@@ -38,11 +38,8 @@ describe('Grid', function () {
         count: i * 1000,
         isOdd: !!(i % 2)
       });
-
-      this._selectedRows.push(false);
     }
 
-    this.noop = function () {};
     this.testProps = {
       enableCellSelect: true,
       columns: this.columns,
@@ -106,9 +103,7 @@ describe('Grid', function () {
   });
 
   it('should be initialized with correct state', function () {
-    expect(this.component.state).toEqual(mockStateObject({
-      selectedRows : this._selectedRows
-    }));
+    expect(this.component.state).toEqual(mockStateObject());
   });
 
   describe('if passed in as props to grid', function () {
@@ -181,11 +176,8 @@ describe('Grid', function () {
       });
 
       it('should select all rows', function () {
-        var selectedRows = this.component.state.selectedRows;
+        var selectedRows = this.component.props.selectedRows;
         expect(selectedRows.length).toEqual(this._rows.length);
-
-        expect(selectedRows.length).toBeGreaterThan(1)
-        selectedRows.forEach((selected) => expect(selected).toBe(true));
       });
 
       describe('and then unchecking header checkbox', function () {
@@ -195,49 +187,38 @@ describe('Grid', function () {
         });
 
         it('should deselect all rows', function () {
-          var selectedRows = this.component.state.selectedRows;
+          var selectedRows = this.component.props.selectedRows;
 
-          expect(selectedRows.length).toBeGreaterThan(1)
-          selectedRows.forEach((selected) => expect(selected).toBe(false));
+          expect(selectedRows.length).toEqual(0)
         });
       });
     });
 
     describe('when selected is false', function () {
       beforeEach(function () {
-        this.component.setState({ selectedRows: [false, false, false, false]});
         var selectRowCol = this.baseGrid.props.columnMetrics.columns[0];
         selectRowCol.onCellChange(3, 'select-row', this.buildFakeEvent());
       });
 
       it('should be able to select an individual row', function () {
-        expect(this.component.state.selectedRows[3]).toBe(true);
+        expect(this.component.props.selectedRows[0]).toBe(this._rows[3]);
       });
     });
 
-    describe('when selected is null', function () {
-      beforeEach(function () {
-        this.component.setState({ selectedRows: [null, null, null, null]});
-        var selectRowCol = this.baseGrid.props.columnMetrics.columns[0];
-        selectRowCol.onCellChange(2, 'select-row', this.buildFakeEvent());
-      });
-
-      it('should be able to select an individual row', function () {
-        expect(this.component.state.selectedRows[2]).toBe(true);
-      });
-    });
-
-    describe('when selected is true', function () {
-      beforeEach(function () {
-        this.component.setState({ selectedRows: [null, true, true, true]});
-        var selectRowCol = this.baseGrid.props.columnMetrics.columns[0];
-        selectRowCol.onCellChange(3, 'select-row', this.buildFakeEvent());
-      });
-
-      it('should be able to unselect an individual row ', function () {
-        expect(this.component.state.selectedRows[3]).toBe(false);
-      });
-    });
+    // describe('when selected is true', function () {
+    //   beforeEach(function () {
+    //     this.setProps({ defaultSelectedRows: [this._rows[3]] });
+    //
+    //     console.log(this.component.props.selectedRows)
+    //
+    //     var selectRowCol = this.baseGrid.props.columnMetrics.columns[0];
+    //     selectRowCol.onCellChange(3, 'select-row', this.buildFakeEvent());
+    //   });
+    //
+    //   it('should be able to unselect an individual row ', function () {
+    //     expect(this.component.props.selectedRows.length).toBe(0);
+    //   });
+    // });
   });
 
   describe('User Interaction', function () {

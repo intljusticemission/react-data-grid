@@ -21,7 +21,6 @@ module.exports = function (stateValues) {
       totalWidth: 0,
       minColumnWidth: 80
     },
-    selectedRows: [],
     selected: {
       rowIdx: 0,
       idx: 0,

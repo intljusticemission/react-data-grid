@@ -53,21 +53,21 @@ var ReactDataGrid = React.createClass({
     KeyboardHandlerMixin
   ],
 
-  getDefaultProps(): {enableCellSelect: boolean} {
+  getDefaultProps() {
     return {
       enableCellSelect : false,
       tabIndex : -1,
       rowHeight: 35,
       enableRowSelect : false,
       minHeight : 350,
-      sortType: 'simple'
+      sortType: 'simple',
+      selectedRows: []
     };
   },
 
   getInitialState: function(): {
     selected: SelectedType;
     copied: ?{idx: number; rowIdx: number};
-    selectedRows: Array<Row>;
     expandedRows: Array<Row>;
     canFilter: boolean;
     columnFilters: any;
@@ -79,7 +79,6 @@ var ReactDataGrid = React.createClass({
     var initialState = {
       columnMetrics,
       ...this.getSelectedState(this.props),
-      selectedRows: this.getInitialSelectedRows(),
       copied: null,
       expandedRows: [],
       canFilter: false,
@@ -89,14 +88,6 @@ var ReactDataGrid = React.createClass({
     }
 
     return initialState;
-  },
-
-  getInitialSelectedRows() {
-    var selectedRows = [];
-    for (var i = 0; i < this.props.rowsCount; i++) {
-      selectedRows.push(false);
-    }
-    return selectedRows;
   },
 
   componentWillReceiveProps(nextProps: ReactDataGridProps) {
@@ -170,7 +161,7 @@ var ReactDataGrid = React.createClass({
             rowsCount={this.props.rowsCount}
             rowHeight={this.props.rowHeight}
             cellMetaData={cellMetaData}
-            selectedRows={this.state.selectedRows}
+            selectedRows={this.props.selectedRows}
             expandedRows={this.state.expandedRows}
             rowOffsetHeight={this.getRowOffsetHeight()}
             sortInfo={this.props.sortInfo}
@@ -383,34 +374,33 @@ var ReactDataGrid = React.createClass({
   },
 
   handleCheckboxChange : function(e: SyntheticEvent) {
-    var allRowsSelected;
-    if (e.currentTarget instanceof HTMLInputElement && e.currentTarget.checked === true) {
-      allRowsSelected = true;
-    }
-    else {
-      allRowsSelected = false;
-    }
     var selectedRows = [];
-    for (var i = 0; i < this.props.rowsCount; i++) {
-      selectedRows.push(allRowsSelected);
+    if (e.currentTarget instanceof HTMLInputElement && e.currentTarget.checked === true) {
+      for (var i = 0; i < this.props.rowsCount; i++) {
+        selectedRows.push(this.props.rowGetter(i));
+      }
     }
-    this.setState({ selectedRows });
+
+    this.props.onSelectRow(selectedRows)
   },
 
   // columnKey not used here as this function will select the whole row,
   // but needed to match the function signature in the CheckboxEditor
   handleRowSelect(rowIdx: number, columnKey: string, e: Event) {
+    var selectedRows = this.props.selectedRows.slice()
     e.stopPropagation();
-    if (this.state.selectedRows != null && this.state.selectedRows.length > 0) {
-      var selectedRows = this.state.selectedRows.slice();
-      if (selectedRows[rowIdx] == null || selectedRows[rowIdx] == false) {
-        selectedRows[rowIdx] = true;
-      }
-      else {
-        selectedRows[rowIdx] = false;
-      }
-      this.setState({ selectedRows });
+
+    var row = this.props.rowGetter(rowIdx)
+      , idx = selectedRows.indexOf(row);
+
+    if (idx !== -1) {
+      selectedRows.splice(idx, 1)
     }
+    else {
+      selectedRows.push(row);
+    }
+
+    this.props.onSelectRow(selectedRows)
   },
 
   onAfterAddRow:function(numberOfRows: number) {
@@ -555,5 +545,6 @@ var ReactDataGrid = React.createClass({
 module.exports = uncontrollable(ReactDataGrid, {
   active: 'onActive',
   selectedCell: 'onSelectCell',
+  selectedRows: 'onSelectRow',
   sortInfo: 'onGridSort'
 })
