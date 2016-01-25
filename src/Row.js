@@ -143,6 +143,7 @@ var Row = React.createClass({
            this.doesRowContainSelectedCell(nextProps)                                                    ||
            this.willRowBeDraggedOver(nextProps)                                                          ||
            nextProps.row !== this.props.row                                                              ||
+           nextProps.idx !== this.props.idx                                                              ||
            this.hasRowBeenCopied()                                                                       ||
            this.props.isSelected !== nextProps.isSelected                                                ||
            nextProps.height !== this.props.height;
