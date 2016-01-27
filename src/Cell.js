@@ -9,6 +9,14 @@ var ExcelColumn       = require('./addons/grids/ExcelColumn');
 var isFunction        = require('./addons/utils/isFunction');
 var CellMetaDataShape = require('./PropTypeShapes/CellMetaData');
 
+function shouldCellUpdate(props, context) {
+  let { column } = props
+  let formatter = column.formatter || SimpleCellFormatter
+  formatter = formatter.type || formatter
+  return !!formatter.shouldCellUpdate
+      && formatter.shouldCellUpdate(props, context)
+}
+
 var Cell = React.createClass({
 
   propTypes : {
@@ -80,7 +88,8 @@ var Cell = React.createClass({
       || this.isDraggedCellChanging(nextProps)
       || this.isCopyCellChanging(nextProps)
       || this.props.isRowSelected !== nextProps.isRowSelected
-      || this.isSelected();
+      || this.isSelected()
+      || shouldCellUpdate(nextProps);
   },
 
   getStyle(): {position:string; width: number; height: number; left: number} {
