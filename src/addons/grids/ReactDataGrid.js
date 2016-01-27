@@ -206,6 +206,7 @@ var ReactDataGrid = React.createClass({
           && idx < ColumnUtils.getSize(this.state.columnMetrics.columns)
           && rowIdx < this.props.rowsCount
         ) {
+          this.setInactive()
           notify(this.props.onSelectCell,
             [idx, rowIdx],
             [old.idx, old.rowIdx]
