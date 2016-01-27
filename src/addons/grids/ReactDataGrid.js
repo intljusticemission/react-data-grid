@@ -30,6 +30,7 @@ var ReactDataGrid = React.createClass({
      * A column definition for the "select row" cell
      */
     selectRowColumn: React.PropTypes.object,
+    selectRowIndex: React.PropTypes.number,
 
     onRowUpdated:React.PropTypes.func,
     rowGetter: React.PropTypes.func.isRequired,
@@ -42,6 +43,8 @@ var ReactDataGrid = React.createClass({
     sortType: React.PropTypes.oneOf(['simple', 'multiple']),
     onFilter: React.PropTypes.func,
     onGridSort: React.PropTypes.func,
+    onSelectRow: React.PropTypes.func,
+    onSelectCell: React.PropTypes.func,
     onCellCopyPaste: React.PropTypes.func,
     onCellsDragged: React.PropTypes.func,
     onAddFilter: React.PropTypes.func
@@ -254,7 +257,12 @@ var ReactDataGrid = React.createClass({
   },
 
   onPressEscape(e: SyntheticKeyboardEvent) {
-    this.setInactive(e.key);
+    if (this.isActive()) {
+      this.setInactive(e.key);
+    }
+    else if (this.state.copied) {
+      this.setState({ copied : null });
+    }
   },
 
   onPressBackspace(e: SyntheticKeyboardEvent) {
@@ -351,7 +359,9 @@ var ReactDataGrid = React.createClass({
   },
 
   setupGridColumns(props = this.props): Array<any> {
-    var cols = props.columns.slice(0);
+    var cols = props.columns.slice(0)
+     , idx = props.selectRowIndex || 0;
+
     if (props.enableRowSelect) {
       let userProps = props.selectRowColumn
 
@@ -359,15 +369,15 @@ var ReactDataGrid = React.createClass({
           formatter: <CheckboxEditor/>,
           filterable: false,
           headerRenderer: <input type="checkbox" onChange={this.handleCheckboxChange} />,
-          width : 30,
+          width : 40,
           locked: true,
           ...userProps,
           onCellChange: this.handleRowSelect,
           key: 'select-row',
           name: ''
       };
-      var unshiftedCols = cols.unshift(selectColumn);
-      cols = unshiftedCols > 0 ? cols : unshiftedCols;
+
+      cols.splice(idx, 0, selectColumn);
     }
     return cols;
   },
