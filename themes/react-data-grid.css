@@ -90,11 +90,7 @@
   -moz-transition: opacity .25s ease-in-out;
   -webkit-transition: opacity .25s ease-in-out;
 }
-.react-grid-Cell__value ul {
-  margin-top: 0;
-  margin-bottom: 0;
-  display: inline-block;
-}
+
 .react-grid-Cell__value .btn-sm {
   padding: 0;
 }
