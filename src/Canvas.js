@@ -138,6 +138,7 @@ var Canvas = React.createClass({
   },
 
   componentDidMount() {
+    ReactDOM.findDOMNode(this).scrollLeft = 0;
     this.onRows();
   },
 
