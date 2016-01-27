@@ -29,6 +29,7 @@ var Row = React.createClass({
     );
 
     var style = {
+      ...this.props.style,
       height: this.getRowHeight(this.props),
       overflow: 'hidden'
     };
