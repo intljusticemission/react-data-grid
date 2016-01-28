@@ -1,6 +1,7 @@
 /* @flow */
 'use strict';
 var React                   = require('react');
+var isTextInputElement      = require('react/lib/isTextInputElement');
 var joinClasses             = require('classnames');
 var keyboardHandlerMixin    = require('../../KeyboardHandlerMixin');
 var SimpleTextEditor        = require('./SimpleTextEditor');
@@ -206,7 +207,7 @@ var EditorContainer = React.createClass({
   isCaretAtBeginningOfInput(): boolean {
     var inputNode = this.getInputNode();
 
-    if (!inputNode || inputNode.tagName !== 'INPUT')
+    if (!isTextInputElement(inputNode))
       return true
 
     return inputNode.selectionStart === inputNode.selectionEnd
@@ -215,7 +216,8 @@ var EditorContainer = React.createClass({
 
   isCaretAtEndOfInput(): boolean {
     var inputNode = this.getInputNode();
-    if (!inputNode || inputNode.tagName !== 'INPUT')
+    
+    if (!isTextInputElement(inputNode))
       return true
 
     return inputNode.selectionStart === (inputNode.value || '').length;
