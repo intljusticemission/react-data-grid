@@ -33,7 +33,9 @@ var HeaderCell = React.createClass({
       'react-grid-HeaderCell--resizing': this.state.resizing,
       'react-grid-HeaderCell--locked': this.props.column.locked
     });
-    className = joinClasses(className, this.props.className);
+
+    className = joinClasses(className, this.props.className, this.props.column.cellClass);
+
     var cell = this.getCell();
     return (
       <div className={className} style={this.getStyle()}>
