@@ -64,6 +64,7 @@ var Grid = React.createClass({
         { this.props.rowsCount >= 1 || (this.props.rowsCount === 0 && !this.props.emptyRowsView)
             ?
               <div
+                tabIndex='-1'
                 ref="viewPortContainer"
                 onKeyDown={this.props.onViewportKeydown}
                 onDoubleClick={this.props.onViewportDoubleClick}
@@ -96,6 +97,10 @@ var Grid = React.createClass({
         }
       </div>
     );
+  },
+
+  focus() {
+    this.refs.viewPortContainer.focus();
   },
 
   getDefaultProps() {

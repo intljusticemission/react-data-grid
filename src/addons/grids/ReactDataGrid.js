@@ -189,6 +189,10 @@ var ReactDataGrid = React.createClass({
     }
   },
 
+  focus() {
+    this.refs.base.focus();
+  },
+
   onSelect(selected: SelectedType) {
     let { selected: old } = this.state;
 
@@ -289,7 +293,7 @@ var ReactDataGrid = React.createClass({
     if (this.canEdit(idx, rowIdx)) {
       if (e.keyCode == keys.KeyCode_c || e.keyCode == keys.KeyCode_C) {
         var value = this.getSelectedValue();
-        this.handleCopy({ value : value });
+        this.handleCopy({ value });
       }
       else if (e.keyCode == keys.KeyCode_v || e.keyCode == keys.KeyCode_V) {
         this.handlePaste();
@@ -340,9 +344,25 @@ var ReactDataGrid = React.createClass({
     if (this.props.enableCellSelect === true) {
       if (col.editable === false) return false
       if (col.editable === true) return true
-      if (typeof col.editable === 'function') return col.editable(row, idx, rowIdx)
+      if (typeof col.editable === 'function') return col.editable(row, rowIdx)
 
       return col.editor != null
+    }
+  },
+
+  copy() {
+    let { idx, rowIdx } = this.state.selected;
+
+    if (this.canEdit(idx, rowIdx)) {
+      this.handleCopy({ value: this.getSelectedValue() })
+    }
+  },
+
+  paste() {
+    let { idx, rowIdx } = this.state.selected;
+
+    if (this.canEdit(idx, rowIdx)) {
+      this.handlePaste()
     }
   },
 
@@ -561,4 +581,4 @@ module.exports = uncontrollable(ReactDataGrid, {
   selectedCell: 'onSelectCell',
   selectedRows: 'onSelectRow',
   sortInfo: 'onGridSort'
-})
+}, ['focus', 'copy', 'paste'])
