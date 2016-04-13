@@ -18,40 +18,98 @@ var fullExample = require('./scripts/example13-all-features');
 var fullExampleImmutable = require('./scripts/example14-all-features-immutable');
 var emptyRowsExample = require('./scripts/example15-empty-rows');
 
-var { Route, RouteHandler, Link } = ReactRouter;
+var { Route, Router, Link, IndexRoute, hashHistory } = ReactRouter;
 
 window.AutoCompleteEditor = require('./components/AutoCompleteEditor')
 
 var App = React.createClass({
-  render: function () {
+  render() {
     return (
-      <div>
-      <h1 className="page-header">React Data Grid Examples</h1>
-      <RouteHandler/>
+      <div className="container-fluid top-space">
+        <div className="row">
+          <div className="col-md-2 top-space">
+            <nav id="sidebar" className="bs-docs-sidebar hidden-print hidden-xs hidden-sm">
+              <ul className="nav bs-docs-sidenav">
+                <li>
+                  <Link to="/basic">Basic Example</Link>
+                </li>
+                <li>
+                  <Link to="/resizable">Resizable Columns</Link>
+                </li>
+                <li>
+                  <Link to="/fixed">Frozen Columns</Link>
+                </li>
+                <li>
+                  <Link to="/editable">Editable Grid</Link>
+                </li>
+                <li>
+                  <Link to="/formatters">Custom Formatters</Link>
+                </li>
+                <li>
+                  <Link to="/editors">Rich Cell Editors</Link>
+                </li>
+                <li>
+                  <Link to="/million-rows">One Million Rows</Link>
+                </li>
+                <li>
+                  <Link to="/sortable">Sortable Grid</Link>
+                </li>
+                <li>
+                  <Link to="/filterable">Filterable Grid</Link>
+                </li>
+                <li>
+                  <Link to="/immutable-data">Immutable Data Grid</Link>
+                </li>
+                <li>
+                  <Link to="/custom-row-renderer">Custom Row Render</Link>
+                </li>
+                <li>
+                  <Link to="/empty-rows">Empty Rows</Link>
+                </li>
+                <li>
+                  <Link to="/all-the-features">All-The-Features Grid</Link>
+                </li>
+                <li>
+                  <Link to="/all-features-immutable">All-The-Features with Immutable Data</Link>
+                </li>
+              </ul>
+            </nav>
+          </div>
+          <div className="col-md-10">
+            <div id="example">
+              <h1 className="page-header">React Data Grid Examples</h1>
+              { this.props.children }
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 });
 
 var routes = (
-  <Route handler={App}>
-      <Route name="basic" handler={basicExample}/>
-      <Route name="resizable" handler={resizableExample}/>
-      <Route name="fixed" handler={fixedColsExample}/>
-      <Route name="editable" handler={editableExample}/>
-      <Route name="formatters" handler={formatterExample}/>
-      <Route name="editors" handler={editorsExample}/>
-      <Route name="sortable" handler={sortableExample}/>
-      <Route name="filterable" handler={filterableExample}/>
-      <Route name="million-rows" handler={millionRowsExample}/>
-      <Route name="all-the-features" handler={fullExample}/>
-      <Route name="all-features-immutable" handler={fullExampleImmutable}/>
-      <Route name="immutable-data" handler={immutableDataExample}/>
-      <Route name="custom-row-renderer" handler={customRowRenderer}/>
-      <Route name="empty-rows" handler={emptyRowsExample}/>
+  <Route path='/' component={App}>
+    <IndexRoute component={basicExample}/>
+    <Route path="basic" component={basicExample}/>
+    <Route path="resizable" component={resizableExample}/>
+    <Route path="fixed" component={fixedColsExample}/>
+    <Route path="editable" component={editableExample}/>
+    <Route path="formatters" component={formatterExample}/>
+    <Route path="editors" component={editorsExample}/>
+    <Route path="sortable" component={sortableExample}/>
+    <Route path="filterable" component={filterableExample}/>
+    <Route path="million-rows" component={millionRowsExample}/>
+    <Route path="all-the-features" component={fullExample}/>
+    <Route path="all-features-immutable" component={fullExampleImmutable}/>
+    <Route path="immutable-data" component={immutableDataExample}/>
+    <Route path="custom-row-renderer" component={customRowRenderer}/>
+    <Route path="empty-rows" component={emptyRowsExample}/>
   </Route>
 );
 
-ReactRouter.run(routes, function (Handler) {
-  ReactDOM.render(<Handler/>, document.getElementById('example'));
-});
+
+ReactDOM.render(
+  <Router history={hashHistory}>
+    {routes}
+  </Router>
+, document.getElementById('app'));

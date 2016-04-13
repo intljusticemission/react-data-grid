@@ -10,10 +10,7 @@ var path = require("path");
 console.log(path.resolve(__dirname, '../../src'))
 webpackConfig = {
 	entry: {
-		'index' : './examples/index.js',
-		'shared' : './examples/shared.js',
-		'examples' : './examples/examples.js',
-		'documentation' : './examples/documentation.js'
+		'examples' : './examples/examples.js'
 	},
 	output: {
 		path: path.join(__dirname, "../../examples/build"),
