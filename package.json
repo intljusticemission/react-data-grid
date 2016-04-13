@@ -17,7 +17,7 @@
     "dist": "webpack --config ./config/webpack.js",
     "build": "npm run clean && npm run dist & babel src --out-dir lib --ignore ./**/__tests__",
     "examples": "gulp",
-    "prepublish": "npm run test && npm run build"
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
