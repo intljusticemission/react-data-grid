@@ -1,8 +1,8 @@
 /* @flow */
 "use strict";
 
+var PropTypes = require('prop-types');
 var React                = require('react');
-var PropTypes            = React.PropTypes;
 var Header               = require('./Header');
 var Viewport             = require('./Viewport');
 var GridScrollMixin      = require('./GridScrollMixin');

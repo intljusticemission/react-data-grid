@@ -1,7 +1,7 @@
 /* @flow need   */
 'use strict';
+var PropTypes = require('prop-types');
 var React         = require('react');
-var PropTypes     = React.PropTypes;
 var emptyFunction = require('fbjs/lib/emptyFunction');
 
 var Draggable = React.createClass({

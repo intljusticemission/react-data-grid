@@ -1,5 +1,6 @@
 /* @flow */
 'use strict';
+var PropTypes = require('prop-types');
 var React                   = require('react');
 var joinClasses             = require('classnames');
 var keyboardHandlerMixin    = require('../../KeyboardHandlerMixin');
@@ -39,16 +40,16 @@ var EditorContainer = React.createClass({
   mixins: [keyboardHandlerMixin],
 
   propTypes: {
-    rowData: React.PropTypes.object.isRequired,
-    cellMetaData: React.PropTypes.shape({
-      selected: React.PropTypes.object.isRequired,
-      copied: React.PropTypes.object,
-      dragged: React.PropTypes.object,
-      onCellClick: React.PropTypes.func,
-      onCellDoubleClick: React.PropTypes.func
+    rowData: PropTypes.object.isRequired,
+    cellMetaData: PropTypes.shape({
+      selected: PropTypes.object.isRequired,
+      copied: PropTypes.object,
+      dragged: PropTypes.object,
+      onCellClick: PropTypes.func,
+      onCellDoubleClick: PropTypes.func
     }).isRequired,
-    column: React.PropTypes.object.isRequired,
-    height: React.PropTypes.number.isRequired
+    column: PropTypes.object.isRequired,
+    height: PropTypes.number.isRequired
   },
 
   changeCommitted: false,

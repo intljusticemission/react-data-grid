@@ -2,14 +2,16 @@
 
 'use strict';
 
+var PropTypes = require('prop-types');
+
 var React = require('react');
 
 var Toolbar = React.createClass({
   propTypes: {
-    onAddRow : React.PropTypes.func,
-    onToggleFilter : React.PropTypes.func.isRequired,
-    enableFilter : React.PropTypes.bool,
-    numberOfRows : React.PropTypes.number.isRequired
+    onAddRow : PropTypes.func,
+    onToggleFilter : PropTypes.func.isRequired,
+    enableFilter : PropTypes.bool,
+    numberOfRows : PropTypes.number.isRequired
   },
   onAddRow() {
     if (this.props.onAddRow !== null && this.props.onAddRow instanceof Function) {

@@ -1,6 +1,8 @@
 /* @flow */
 'use strict';
 
+var PropTypes = require('prop-types');
+
 var React             = require('react');
 var ReactDOM = require('react-dom');
 var joinClasses       = require('classnames');
@@ -20,19 +22,19 @@ function shouldCellUpdate(props, context) {
 var Cell = React.createClass({
 
   propTypes : {
-    rowIdx : React.PropTypes.number.isRequired,
-    idx : React.PropTypes.number.isRequired,
-    selected : React.PropTypes.shape({
-      idx : React.PropTypes.number.isRequired,
+    rowIdx : PropTypes.number.isRequired,
+    idx : PropTypes.number.isRequired,
+    selected : PropTypes.shape({
+      idx : PropTypes.number.isRequired,
     }),
-    tabIndex : React.PropTypes.number,
-    ref : React.PropTypes.string,
-    column: React.PropTypes.shape(ExcelColumn).isRequired,
-    isExpanded: React.PropTypes.bool,
-    cellMetaData: React.PropTypes.shape(CellMetaDataShape).isRequired,
-    handleDragStart: React.PropTypes.func,
-    className: React.PropTypes.string,
-    rowData : React.PropTypes.object.isRequired
+    tabIndex : PropTypes.number,
+    ref : PropTypes.string,
+    column: PropTypes.shape(ExcelColumn).isRequired,
+    isExpanded: PropTypes.bool,
+    cellMetaData: PropTypes.shape(CellMetaDataShape).isRequired,
+    handleDragStart: PropTypes.func,
+    className: PropTypes.string,
+    rowData : PropTypes.object.isRequired
   },
 
   getDefaultProps(): {tabIndex: number; ref: string; isExpanded: boolean } {

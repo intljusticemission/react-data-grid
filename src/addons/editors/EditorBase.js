@@ -1,5 +1,6 @@
 /* @flow */
 'use strict';
+var PropTypes = require('prop-types');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var ExcelColumn = require('../grids/ExcelColumn');
@@ -38,9 +39,9 @@ class EditorBase extends React.Component {
 }
 
 EditorBase.propTypes = {
-  value : React.PropTypes.any,
-  column :  React.PropTypes.shape(ExcelColumn).isRequired,
-  onCommit : React.PropTypes.func.isRequired
+  value : PropTypes.any,
+  column :  PropTypes.shape(ExcelColumn).isRequired,
+  onCommit : PropTypes.func.isRequired
 }
 
 

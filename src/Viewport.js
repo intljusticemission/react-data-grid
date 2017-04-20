@@ -1,9 +1,9 @@
 /* @flow */
 'use strict';
 
+var PropTypes = require('prop-types');
 var React = require('react');
 var Canvas = require('./Canvas');
-var PropTypes = React.PropTypes;
 var colUtils = require('./ColumnUtils')
 var ViewportScroll = require('./ViewportScrollMixin');
 

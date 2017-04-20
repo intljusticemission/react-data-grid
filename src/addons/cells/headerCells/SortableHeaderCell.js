@@ -1,6 +1,8 @@
 /* @flow */
 'use strict';
 
+var PropTypes = require('prop-types');
+
 var React = require('react');
 var joinClasses  = require('classnames');
 var DEFINE_SORT = {
@@ -11,9 +13,9 @@ var DEFINE_SORT = {
 
 var SortableHeaderCell = React.createClass({
   propTypes: {
-    columnKey : React.PropTypes.string.isRequired,
-    onSort    : React.PropTypes.func.isRequired,
-    sortDirection : React.PropTypes.oneOf(['ASC', 'DESC', 'NONE'])
+    columnKey : PropTypes.string.isRequired,
+    onSort    : PropTypes.func.isRequired,
+    sortDirection : PropTypes.oneOf(['ASC', 'DESC', 'NONE'])
   },
 
   onClick: function() {

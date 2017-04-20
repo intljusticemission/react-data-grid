@@ -1,6 +1,8 @@
 /* @flow */
 'use strict';
 
+var PropTypes = require('prop-types');
+
 var React = require('react');
 var ReactDOM = require('react-dom');
 var EditorBase = require('./EditorBase');
@@ -38,7 +40,7 @@ class DropDownEditor extends EditorBase {
 
 
 DropDownEditor.propTypes = {
-    options : React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
+    options : PropTypes.arrayOf(PropTypes.string).isRequired,
 }
 
 module.exports = DropDownEditor;

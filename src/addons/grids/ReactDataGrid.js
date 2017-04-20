@@ -1,5 +1,6 @@
 /* @flow */
 "use strict";
+var PropTypes = require('prop-types');
 var React = require('react');
 var ReactDOM = require('react-dom');
 var uncontrollable = require('uncontrollable');
@@ -18,36 +19,36 @@ let notify = (handler, ...args) => handler && handler(...args)
 var ReactDataGrid = React.createClass({
 
   propTypes: {
-    rowHeight: React.PropTypes.number.isRequired,
-    headerRowHeight: React.PropTypes.number,
-    minHeight: React.PropTypes.number.isRequired,
-    minWidth: React.PropTypes.number,
+    rowHeight: PropTypes.number.isRequired,
+    headerRowHeight: PropTypes.number,
+    minHeight: PropTypes.number.isRequired,
+    minWidth: PropTypes.number,
 
-    enableCellSelect : React.PropTypes.bool,
-    enableRowSelect: React.PropTypes.bool,
+    enableCellSelect : PropTypes.bool,
+    enableRowSelect: PropTypes.bool,
 
     /**
      * A column definition for the "select row" cell
      */
-    selectRowColumn: React.PropTypes.object,
-    selectRowIndex: React.PropTypes.number,
+    selectRowColumn: PropTypes.object,
+    selectRowIndex: PropTypes.number,
 
-    onRowUpdated:React.PropTypes.func,
-    rowGetter: React.PropTypes.func.isRequired,
-    rowsCount: React.PropTypes.number.isRequired,
-    toolbar:React.PropTypes.element,
-    columns: React.PropTypes.oneOfType([
-      React.PropTypes.object,
-      React.PropTypes.array
+    onRowUpdated:PropTypes.func,
+    rowGetter: PropTypes.func.isRequired,
+    rowsCount: PropTypes.number.isRequired,
+    toolbar:PropTypes.element,
+    columns: PropTypes.oneOfType([
+      PropTypes.object,
+      PropTypes.array
     ]).isRequired,
-    sortType: React.PropTypes.oneOf(['simple', 'multiple']),
-    onFilter: React.PropTypes.func,
-    onGridSort: React.PropTypes.func,
-    onSelectRow: React.PropTypes.func,
-    onSelectCell: React.PropTypes.func,
-    onCellCopyPaste: React.PropTypes.func,
-    onCellsDragged: React.PropTypes.func,
-    onAddFilter: React.PropTypes.func
+    sortType: PropTypes.oneOf(['simple', 'multiple']),
+    onFilter: PropTypes.func,
+    onGridSort: PropTypes.func,
+    onSelectRow: PropTypes.func,
+    onSelectCell: PropTypes.func,
+    onCellCopyPaste: PropTypes.func,
+    onCellsDragged: PropTypes.func,
+    onAddFilter: PropTypes.func
   },
 
   mixins: [

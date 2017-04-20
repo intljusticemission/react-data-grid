@@ -1,15 +1,16 @@
 /* @flow */
 'use strict';
+var PropTypes = require('prop-types');
 var React = require('react');
 
 var CheckboxEditor = React.createClass({
 
   PropTypes : {
-    value : React.PropTypes.bool.isRequired,
-    rowIdx : React.PropTypes.number.isRequired,
-    column: React.PropTypes.shape({
-      key: React.PropTypes.string.isRequired,
-      onCellChange: React.PropTypes.func.isRequired
+    value : PropTypes.bool.isRequired,
+    rowIdx : PropTypes.number.isRequired,
+    column: PropTypes.shape({
+      key: PropTypes.string.isRequired,
+      onCellChange: PropTypes.func.isRequired
     }).isRequired
   },
 

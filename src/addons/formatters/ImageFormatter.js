@@ -1,10 +1,11 @@
+var PropTypes = require('prop-types');
 var React = require('react');
 var PendingPool = {};
 var ReadyPool = {};
 
 var ImageFormatter = React.createClass({
   propTypes: {
-    value: React.PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired,
   },
 
   getInitialState() {

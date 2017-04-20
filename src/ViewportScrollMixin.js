@@ -1,3 +1,4 @@
+var PropTypes = require('prop-types');
 /* TODO@flow mixins */
 
 var React = require('react');
@@ -27,8 +28,8 @@ module.exports = {
   },
 
   propTypes: {
-    rowHeight: React.PropTypes.number,
-    rowsCount: React.PropTypes.number.isRequired
+    rowHeight: PropTypes.number,
+    rowsCount: PropTypes.number.isRequired
   },
 
   getDefaultProps(): { rowHeight: number } {

@@ -1,5 +1,6 @@
 /* @flow */
 "use strict";
+var PropTypes = require('prop-types');
 var React               = require('react');
 var ReactDOM            = require('react-dom');
 var joinClasses         = require('classnames');
@@ -14,10 +15,10 @@ type Column = {
 
 var Header = React.createClass({
   propTypes: {
-    columnMetrics: React.PropTypes.shape({  width: React.PropTypes.number.isRequired }).isRequired,
-    totalWidth: React.PropTypes.number,
-    height: React.PropTypes.number.isRequired,
-    headerRows: React.PropTypes.array.isRequired,
+    columnMetrics: PropTypes.shape({  width: PropTypes.number.isRequired }).isRequired,
+    totalWidth: PropTypes.number,
+    height: PropTypes.number.isRequired,
+    headerRows: PropTypes.array.isRequired,
     sortInfo: HeaderRow.propTypes.sortInfo
   },
 

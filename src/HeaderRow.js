@@ -4,8 +4,8 @@
  */
 "use strict";
 
+const PropTypes = require('prop-types');
 var React             = require('react');
-var PropTypes         = React.PropTypes;
 var shallowEqual      = require('fbjs/lib/shallowEqual');
 var HeaderCell        = require('./HeaderCell');
 var getScrollbarSize  = require('./getScrollbarSize');
@@ -13,10 +13,10 @@ var ColumnUtilsMixin  = require('./ColumnUtils');
 var SortableHeaderCell    = require('./addons/cells/headerCells/SortableHeaderCell');
 
 var HeaderRowStyle  = {
-  overflow: React.PropTypes.string,
+  overflow: PropTypes.string,
   width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  height: React.PropTypes.number,
-  position: React.PropTypes.string
+  height: PropTypes.number,
+  position: PropTypes.string
 };
 
 

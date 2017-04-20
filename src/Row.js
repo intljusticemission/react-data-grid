@@ -1,6 +1,8 @@
 /* @flow  */
 'use strict';
 
+var PropTypes = require('prop-types');
+
 var React           = require('react');
 var joinClasses      = require('classnames');
 var Cell            = require('./Cell');
@@ -10,13 +12,13 @@ var ColumnUtilsMixin  = require('./ColumnUtils');
 var Row = React.createClass({
 
   propTypes: {
-    height: React.PropTypes.number.isRequired,
-    columns: React.PropTypes.oneOfType([React.PropTypes.object, React.PropTypes.array]).isRequired,
-    row: React.PropTypes.object.isRequired,
-    cellRenderer: React.PropTypes.func,
-    isSelected: React.PropTypes.bool,
-    idx : React.PropTypes.number.isRequired,
-    expandedRows : React.PropTypes.arrayOf(React.PropTypes.object)
+    height: PropTypes.number.isRequired,
+    columns: PropTypes.oneOfType([PropTypes.object, PropTypes.array]).isRequired,
+    row: PropTypes.object.isRequired,
+    cellRenderer: PropTypes.func,
+    isSelected: PropTypes.bool,
+    idx : PropTypes.number.isRequired,
+    expandedRows : PropTypes.arrayOf(PropTypes.object)
   },
 
   mixins: [ColumnUtilsMixin],

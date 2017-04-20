@@ -1,9 +1,9 @@
 /* @flow */
 'use strict';
 
+var PropTypes = require('prop-types');
 var React          = require('react');
 var moment         = require('moment');
-var PropTypes = React.PropTypes;
 
 var DateRangeFormatter = React.createClass({
 

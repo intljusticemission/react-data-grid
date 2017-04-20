@@ -1,11 +1,13 @@
 'use strict';
 
+var PropTypes = require('prop-types');
+
 var React               = require('react');
 var emptyFunction       = require('fbjs/lib/emptyFunction');
 var shallowCloneObject  = require('./shallowCloneObject');
 
 var contextTypes = {
-  metricsComputator: React.PropTypes.object
+  metricsComputator: PropTypes.object
 };
 
 var MetricsComputatorMixin = {
