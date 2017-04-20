@@ -29,13 +29,13 @@
     "react-component"
   ],
   "peerDependencies": {
-    "react": "^0.14.0 || ^15.0.0",
-    "react-dom": "^0.14.0 || ^15.0.0"
+    "react": "^15.3.0",
+    "react-dom": "^15.3.0"
   },
   "dependencies": {
-    "classnames": "^1.2.0",
+    "classnames": "^2.2.5",
     "fbjs": "0.6.1",
-    "uncontrollable": "^3.2.1"
+    "uncontrollable": "^4.0.0"
   },
   "devDependencies": {
     "avcoveralls": "^1.0.0",
@@ -95,7 +95,6 @@
     "rewire-webpack": "^1.0.0",
     "ron-react-autocomplete": "^2.0.1",
     "semver": "^5.0.3",
-    "uncontrollable": "^3.2.3",
     "up": "^0.7.0",
     "vinyl-source-stream": "^0.1.1",
     "webpack": "^1.12.10"

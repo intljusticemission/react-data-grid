@@ -1,7 +1,6 @@
 /* @flow */
 'use strict';
 var React                   = require('react');
-var isTextInputElement      = require('react/lib/isTextInputElement');
 var joinClasses             = require('classnames');
 var keyboardHandlerMixin    = require('../../KeyboardHandlerMixin');
 var SimpleTextEditor        = require('./SimpleTextEditor');
@@ -10,6 +9,30 @@ var isFunction              = require('../utils/isFunction');
 let checkAndCallOnEditor =
   (ctx, fn, ...args) => isFunction(ctx.getEditor()[fn]) ? ctx.getEditor()[fn](...args) : false;
 
+var supportedInputTypes = {
+  color: true,
+  date: true,
+  datetime: true,
+  'datetime-local': true,
+  email: true,
+  month: true,
+  number: true,
+  password: true,
+  range: true,
+  search: true,
+  tel: true,
+  text: true,
+  time: true,
+  url: true,
+  week: true,
+};
+
+function isTextInputElement(elem) {
+  var nodeName = elem && elem.nodeName && elem.nodeName.toLowerCase();
+  if (nodeName === 'input') return !!supportedInputTypes[elem.type];
+  if (nodeName === 'textarea') return true;
+  return false;
+}
 
 var EditorContainer = React.createClass({
 

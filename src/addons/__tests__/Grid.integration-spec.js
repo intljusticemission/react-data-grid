@@ -1,6 +1,6 @@
 'use strict';
 
-import TestUtils from 'react/lib/ReactTestUtils';
+import TestUtils from 'react-dom/test-utils';
 import GridRunner from './GridRunner';
 
 
